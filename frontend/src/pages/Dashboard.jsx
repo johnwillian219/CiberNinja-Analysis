@@ -3,6 +3,7 @@ import DashboardLayout from "../components/layout/DashboardLayout";
 import PlatformCard from "../components/dashboard/PlatformCard";
 import TopVideosSection from "../components/dashboard/TopVideosSection";
 import AIInsights from "../components/dashboard/AIInsights";
+import RecentUploads from "../components/dashboard/RecentUploads";
 
 import YoutubeIcon from "@icons/YoutubeIcon";
 import TiktokIcon from "@icons/TiktokIcon";
@@ -82,7 +83,10 @@ export default function DashboardPage() {
       {/* ===== SEÇÃO DE VÍDEOS MAIS VISTOS ===== */}
       <TopVideosSection />
       {/* ===== SEÇÃO DE INSIGHTS DE IA ===== */}
-      <AIInsights />;
+      <AIInsights />
+
+      {/* ===== SEÇÃO DE UPLOADS RECENTES ===== */}
+      <RecentUploads />
     </DashboardLayout>
   );
 }

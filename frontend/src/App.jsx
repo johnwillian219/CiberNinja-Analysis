@@ -4,6 +4,9 @@ import LoginPage from "./pages/LoginPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import RegisterPage from "./pages/RegisterPage";
 import InsightsPage from "./pages/InsightsPage";
+import SettingsPage from "./pages/SettingsPage";
+import LogoutPage from "./pages/LogoutPage";
+import ProfilePage from "./pages/ProfilePage";
 
 export default function App() {
   return (
@@ -15,6 +18,9 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/ai-insights" element={<InsightsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/logout" element={<LogoutPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>
   );
