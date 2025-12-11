@@ -1,7 +1,5 @@
 // src/components/layout/Sidebar.jsx
 import { Link, useLocation } from "react-router-dom";
-
-// Imports dos seus ícones reais
 import DashboardIcon from "@icons/DashboardIcon";
 import YoutubeIcon from "@icons/YoutubeIcon";
 import TiktokIcon from "@icons/TiktokIcon";
@@ -20,51 +18,68 @@ const menuItems = [
     label: "Dashboard Geral",
     path: "/dashboard",
     color: "text-cyan-400",
+    activeBg: "bg-cyan-900/30",
+    activeBorder: "border-cyan-500/60",
   },
   {
     Icon: YoutubeIcon,
     label: "YouTube",
     path: "/youtube",
     color: "text-red-500",
+    activeBg: "bg-red-900/30",
+    activeBorder: "border-red-500/60",
   },
   {
     Icon: TiktokIcon,
     label: "TikTok",
     path: "/tiktok",
     color: "text-pink-500",
+    activeBg: "bg-pink-900/30",
+    activeBorder: "border-pink-500/60",
   },
   {
     Icon: InstagramIcon,
     label: "Instagram",
     path: "/instagram",
     color: "text-pink-400",
+    activeBg: "bg-pink-900/30",
+    activeBorder: "border-pink-400/60",
   },
   {
     Icon: FacebookIcon,
     label: "Facebook",
     path: "/facebook",
     color: "text-blue-500",
+    activeBg: "bg-blue-900/30",
+    activeBorder: "border-blue-500/60",
   },
   {
     Icon: AIIcon,
     label: "Alertas IA",
     path: "/ai-insights",
     color: "text-emerald-400",
+    activeBg: "bg-emerald-900/30",
+    activeBorder: "border-emerald-500/60",
   },
   {
     Icon: LibraryIcon,
     label: "Biblioteca de Vídeos",
     path: "/videos",
     color: "text-yellow-400",
+    activeBg: "bg-yellow-900/30",
+    activeBorder: "border-yellow-500/60",
   },
   {
     Icon: CompareIcon,
     label: "Comparação",
     path: "/compare",
     color: "text-purple-400",
+    activeBg: "bg-purple-900/30",
+    activeBorder: "border-purple-500/60",
   },
 ];
 
+// MENU INFERIOR — agora com cor no hover igual ao menu principal
 const bottomItems = [
   {
     Icon: SettingsIcon,
@@ -78,13 +93,7 @@ const bottomItems = [
     path: "/profile",
     color: "text-gray-300",
   },
-  {
-    Icon: LogoutIcon,
-    label: "Logout",
-    path: "/logout",
-    color: "text-red-500",
-    danger: true,
-  },
+  { Icon: LogoutIcon, label: "Logout", path: "/logout", color: "text-red-500" },
 ];
 
 export default function Sidebar() {
@@ -95,8 +104,17 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-lg flex items-center justify-center text-2xl font-bold shadow-lg">
-            🗡️
+          <div className="relative">
+            <img
+              src="src/assets/avatar.png"
+              alt="CiberNinja"
+              className="w-11 h-11 rounded-full object-cover relative z-10"
+            />
+
+            {/* Borda neon verde brilhante (a mágica acontece aqui) */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-lime-400 p-[2px] -z-10">
+              <div className="w-full h-full rounded-full bg-gray-900"></div>
+            </div>
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">CiberNinja</h1>
@@ -107,47 +125,92 @@ export default function Sidebar() {
 
       {/* Menu Principal */}
       <nav className="flex-1 px-4 py-3 space-y-1 overflow-y-auto">
-        {menuItems.map(({ Icon, label, path, color }) => {
+        {menuItems.map(
+          ({ Icon, label, path, color, activeBg, activeBorder }) => {
+            const isActive = location.pathname.startsWith(path);
+            const hoverColor = color.replace("text-", "group-hover:text-");
+
+            return (
+              <Link
+                key={path}
+                to={path}
+                className={`
+                group relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                ${
+                  isActive
+                    ? `${activeBg} ${activeBorder} border bg-opacity-30 text-white shadow-lg ring-1 ring-white/5`
+                    : "text-gray-400 hover:bg-gray-800/70"
+                }
+              `}
+              >
+                <Icon
+                  className={`w-5 h-5 transition-colors duration-300 ${
+                    isActive ? color : `text-gray-500 ${hoverColor}`
+                  }`}
+                />
+                <span
+                  className={`transition-colors duration-300 ${
+                    isActive ? color : hoverColor
+                  }`}
+                >
+                  {label}
+                </span>
+                {isActive && (
+                  <div
+                    className={`absolute left-0 top-0 h-full w-1 rounded-r-full ${color.replace(
+                      "text-",
+                      "bg-"
+                    )}`}
+                  />
+                )}
+              </Link>
+            );
+          }
+        )}
+      </nav>
+
+      {/* MENU INFERIOR — AGORA 100% FUNCIONANDO EM TODOS */}
+      <div className="p-4 border-t border-gray-800 space-y-1">
+        {bottomItems.map(({ Icon, label, path, color }) => {
           const isActive = location.pathname === path;
+
+          // FORÇA o Tailwind a gerar essas classes específicas (essa linha é a mágica!)
+          const hoverColorClass =
+            color === "text-gray-300"
+              ? "group-hover:text-gray-300"
+              : "group-hover:text-red-500";
+
           return (
             <Link
               key={path}
               to={path}
-              className={`group flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-gray-800 text-white shadow-md border border-gray-700"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
-              }`}
+              className={`
+          group relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
+          ${
+            isActive
+              ? `bg-gray-800/70 ${color} shadow-lg ring-1 ring-white/5`
+              : "text-gray-400 hover:bg-gray-800/70"
+          }
+        `}
             >
-              {/* Ícone com cor personalizada no hover e ativo */}
+              {/* Ícone */}
               <Icon
-                className={`w-5 h-5 transition-colors duration-200 ${
-                  isActive ? color : `group-hover:${color}`
+                className={`w-5 h-5 transition-colors duration-300 ${
+                  isActive ? color : `text-gray-500 ${hoverColorClass}`
                 }`}
               />
-              <span>{label}</span>
+
+              {/* Texto - agora MUDANDO DE COR no hover */}
+              <span
+                className={`transition-colors duration-300 ${
+                  isActive ? color : hoverColorClass
+                }`}
+              >
+                {label}
+              </span>
             </Link>
           );
         })}
-      </nav>
-
-      {/* Menu Inferior */}
-      <div className="p-4 border-t border-gray-800 space-y-1">
-        {bottomItems.map(({ Icon, label, path, color, danger }) => (
-          <Link
-            key={path}
-            to={path}
-            className="group flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-gray-400 hover:bg-gray-800 hover:text-white"
-          >
-            {/* Ícone com cor no hover (e vermelho extra no logout) */}
-            <Icon
-              className={`w-5 h-5 transition-colors duration-200 group-hover:${color} ${
-                danger ? "group-hover:text-red-500" : ""
-              }`}
-            />
-            <span>{label}</span>
-          </Link>
-        ))}
       </div>
     </aside>
   );
