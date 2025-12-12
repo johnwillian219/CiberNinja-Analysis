@@ -9,6 +9,7 @@ import LogoutPage from "./pages/LogoutPage";
 import ProfilePage from "./pages/ProfilePage";
 import YouTubePage from "./pages/YouTubePage";
 import TikTokPage from "./pages/TikTokPage";
+import InstagramPage from "./pages/InstagramPage";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/youtube" element={<YouTubePage />} />
         <Route path="/tiktok" element={<TikTokPage />} />
+        <Route path="/instagram" element={<InstagramPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,4 +1,4 @@
-// src/components/tiktok/TikTokRankings.jsx
+// src/components/instagram/InstagramRankings.jsx
 import {
   TrendingUp,
   TrendingDown,
@@ -10,49 +10,44 @@ import {
 const top5 = [
   {
     rank: 1,
-    title: "POV: Você entra no servidor errado",
-    views: "2.1M",
-    change: "+124%",
-  },
-  {
-    rank: 2,
-    title: "Hackeando o algoritmo em 15 segundos",
-    views: "1.6M",
+    title: "Aesthetic cyberpunk que você pediu",
+    reach: "456K",
     change: "+89%",
   },
   {
+    rank: 2,
+    title: "Tutorial rápido: phishing em 60s",
+    reach: "378K",
+    change: "+124%",
+  },
+  {
     rank: 3,
-    title: "Quando o beat dropa e vira meme",
-    views: "1.2M",
+    title: "Quando o algoritmo te ama",
+    reach: "285K",
     change: "+67%",
   },
-  {
-    rank: 4,
-    title: "Tutorial rápido: phishing em 60s",
-    views: "780K",
-    change: "+41%",
-  },
+  { rank: 4, title: "Story highlight do dia", reach: "185K", change: "+41%" },
   {
     rank: 5,
-    title: "Live: Testando exploits ao vivo",
-    views: "520K",
+    title: "Carrossel de dicas de segurança",
+    reach: "128K",
     change: "+28%",
   },
 ];
 
 const risingFast = [
-  { title: "POV: Você entra no servidor errado", growth: "+124%" },
-  { title: "Hackeando o algoritmo em 15 segundos", growth: "+89%" },
-  { title: "Quando o beat dropa e vira meme", growth: "+67%" },
+  { title: "Tutorial rápido: phishing em 60s", growth: "+124%" },
+  { title: "Aesthetic cyberpunk que você pediu", growth: "+89%" },
+  { title: "Quando o algoritmo te ama", growth: "+67%" },
 ];
 
 const needsAttention = [
-  { title: "Dança antiga sem trend", drop: "-72%" },
-  { title: "Tutorial longo sem hook", drop: "-58%" },
-  { title: "Vídeo sem música trending", drop: "-49%" },
+  { title: "Post antigo sem stories", drop: "-72%" },
+  { title: "Carrossel sem CTA", drop: "-58%" },
+  { title: "Reel sem música trending", drop: "-49%" },
 ];
 
-export default function TikTokRankings() {
+export default function InstagramRankings() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-16">
       {/* TOP 5 */}
@@ -82,7 +77,7 @@ export default function TikTokRankings() {
                   {video.title}
                 </p>
                 <div className="flex items-center gap-4 mt-1 text-sm">
-                  <span className="text-gray-400">{video.views} views</span>
+                  <span className="text-gray-400">{video.reach} alcance</span>
                   <span className="text-emerald-400 font-semibold">
                     {video.change}
                   </span>
