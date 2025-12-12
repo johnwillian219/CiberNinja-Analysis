@@ -8,6 +8,7 @@ import SettingsPage from "./pages/SettingsPage";
 import LogoutPage from "./pages/LogoutPage";
 import ProfilePage from "./pages/ProfilePage";
 import YouTubePage from "./pages/YouTubePage";
+import TikTokPage from "./pages/TikTokPage";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/youtube" element={<YouTubePage />} />
+        <Route path="/tiktok" element={<TikTokPage />} />
       </Routes>
     </BrowserRouter>
   );
