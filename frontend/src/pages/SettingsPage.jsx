@@ -2,7 +2,7 @@
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { Link, useNavigate } from "react-router-dom"; // ← adicionado useNavigate
 import { useState } from "react";
-import { User, Bell, Trash2 } from "lucide-react";
+import { User, Bell, Trash2, Key } from "lucide-react";
 import ConfirmationModal from "../components/Modal/ConfirmationModal";
 
 // Função para gerar cor consistente a partir do e-mail
@@ -152,6 +152,23 @@ export default function SettingsPage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Segurança - Alterar senha */}
+        <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 mb-10">
+          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <Key className="w-7 h-7 text-purple-400" />
+            Segurança
+          </h2>
+          <p className="text-gray-400 mb-6">
+            Mantenha a sua conta segura alterando a senha regularmente.
+          </p>
+          <Link
+            to="/forgot-password"
+            className="inline-block px-8 py-4 bg-purple-500/20 border border-purple-500/50 rounded-xl text-purple-400 font-medium hover:bg-purple-500/30 hover:border-purple-400 transition-all"
+          >
+            Alterar senha
+          </Link>
         </div>
 
         {/* Eliminar conta */}

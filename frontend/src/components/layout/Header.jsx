@@ -67,6 +67,8 @@ export default function Header() {
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-inner"
             style={{ backgroundColor: avatarBgColor }}
+            //rediciona para /settings ao clicar
+            onClick={() => (window.location.href = "/profile")}
           >
             {firstLetter}
           </div>
