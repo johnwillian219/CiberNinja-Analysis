@@ -1,60 +1,102 @@
 // src/pages/InsightsPage.jsx
 import DashboardLayout from "../components/layout/DashboardLayout";
+import { useState } from "react";
+
+// Componentes gerais
+import InsightsHeader from "../components/insights/general/InsightsHeader";
+import InsightChart from "../components/insights/general/InsightChart";
+import AllPlatformsOverview from "../components/insights/general/AllPlatformsOverview";
+import CombinedRecommendations from "../components/insights/general/CombinedRecommendations";
+import CrossPlatformPerformance from "../components/insights/general/CrossPlatformPerformance";
+import GlobalAlerts from "../components/insights/general/GlobalAlerts";
+
+// Componentes por plataforma
+import YouTubeInsights from "../components/insights/youtube/YouTubeInsights";
+import YouTubeRecommendations from "../components/insights/youtube/YouTubeRecommendations";
+import YouTubePerformance from "../components/insights/youtube/YouTubePerformance";
+import YouTubeAlerts from "../components/insights/youtube/YouTubeAlerts";
+
+import TikTokInsights from "../components/insights/tiktok/TikTokInsights";
+import TikTokRecommendations from "../components/insights/tiktok/TikTokRecommendations";
+import TikTokPerformance from "../components/insights/tiktok/TikTokPerformance";
+import TikTokAlerts from "../components/insights/tiktok/TikTokAlerts";
+
+import InstagramInsights from "../components/insights/instagram/InstagramInsights";
+import InstagramRecommendations from "../components/insights/instagram/InstagramRecommendations";
+import InstagramPerformance from "../components/insights/instagram/InstagramPerformance";
+import InstagramAlerts from "../components/insights/instagram/InstagramAlerts";
+
+import FacebookInsights from "../components/insights/facebook/FacebookInsights";
+import FacebookRecommendations from "../components/insights/facebook/FacebookRecommendations";
+import FacebookPerformance from "../components/insights/facebook/FacebookPerformance";
+import FacebookAlerts from "../components/insights/facebook/FacebookAlerts";
+
+// Mapeamento de componentes por plataforma
+// "all" não tem "Insights" para evitar repetição com AllPlatformsOverview
+const platformComponents = {
+  all: {
+    Recommendations: CombinedRecommendations,
+    Performance: CrossPlatformPerformance,
+    Alerts: GlobalAlerts,
+  },
+  youtube: {
+    Insights: YouTubeInsights,
+    Recommendations: YouTubeRecommendations,
+    Performance: YouTubePerformance,
+    Alerts: YouTubeAlerts,
+  },
+  tiktok: {
+    Insights: TikTokInsights,
+    Recommendations: TikTokRecommendations,
+    Performance: TikTokPerformance,
+    Alerts: TikTokAlerts,
+  },
+  instagram: {
+    Insights: InstagramInsights,
+    Recommendations: InstagramRecommendations,
+    Performance: InstagramPerformance,
+    Alerts: InstagramAlerts,
+  },
+  facebook: {
+    Insights: FacebookInsights,
+    Recommendations: FacebookRecommendations,
+    Performance: FacebookPerformance,
+    Alerts: FacebookAlerts,
+  },
+};
 
 export default function InsightsPage() {
+  const [selectedPlatform, setSelectedPlatform] = useState("all");
+  const Components = platformComponents[selectedPlatform] || {};
+
   return (
     <DashboardLayout>
-      <div className="p-8 lg:p-12">
-        {/* Cabeçalho da página */}
-        <div className="mb-10">
-          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-            Insights da Inteligência Artificial
-          </h1>
-          <p className="text-gray-400 text-lg max-w-4xl">
-            Análise avançada do seu conteúdo com previsões, alertas e
-            recomendações personalizadas em tempo real.
-          </p>
-        </div>
+      <div className="p-6 lg:p-10">
+        {/* Header com filtro integrado e status da IA */}
+        <InsightsHeader
+          selectedPlatform={selectedPlatform}
+          onPlatformChange={setSelectedPlatform}
+        />
 
-        {/* Status da IA */}
-        <div className="flex flex-wrap items-center gap-4 mb-12">
-          <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600/20 to-cyan-500/20 border border-purple-500/40 rounded-full">
-            <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
-            <span className="text-purple-300 font-bold">
-              Katana IA v2 • Ativa
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-emerald-400">
-            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">
-              Última análise: há poucos segundos
-            </span>
-          </div>
-        </div>
+        {/* Visão geral + gráfico comparativo — apenas quando "Todas as plataformas" */}
+        {selectedPlatform === "all" && (
+          <>
+            <AllPlatformsOverview />
+            <InsightChart />
+          </>
+        )}
 
-        {/* Placeholder para conteúdo futuro */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 hover:border-cyan-500/50 transition-all duration-300"
-            >
-              <div className="h-8 bg-gray-700 rounded w-4/5 mb-4 animate-pulse"></div>
-              <div className="space-y-3">
-                <div className="h-4 bg-gray-700 rounded w-full animate-pulse"></div>
-                <div className="h-4 bg-gray-700 rounded w-11/12 animate-pulse"></div>
-                <div className="h-4 bg-gray-700 rounded w-10/12 animate-pulse"></div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Conteúdo dinâmico */}
+        <div className="space-y-20">
+          {/* Insights específicos — só mostra quando uma plataforma está selecionada */}
+          {selectedPlatform !== "all" && Components.Insights && (
+            <Components.Insights />
+          )}
 
-        {/* Mensagem de desenvolvimento */}
-        <div className="mt-16 text-center">
-          <p className="text-gray-500 text-lg">
-            Página em desenvolvimento • Em breve com histórico completo,
-            gráficos de confiança e recomendações acionáveis.
-          </p>
+          {/* Recomendações, Performance e Alertas — gerais ou específicas */}
+          <Components.Recommendations />
+          <Components.Performance />
+          <Components.Alerts />
         </div>
       </div>
     </DashboardLayout>
