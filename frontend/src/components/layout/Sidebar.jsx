@@ -7,10 +7,11 @@ import InstagramIcon from "@icons/InstagramIcon";
 import FacebookIcon from "@icons/FacebookIcon";
 import AIIcon from "@icons/AIIcon";
 import LibraryIcon from "@icons/LibraryIcon";
-import CompareIcon from "@icons/CompareIcon";
+import LabIcon from "@icons/LabIcon";
 import SettingsIcon from "@icons/SettingsIcon";
 import ProfileIcon from "@icons/ProfileIcon";
 import LogoutIcon from "@icons/LogoutIcon";
+import MonetizationIcon from "@icons/MonetizationIcon";
 
 const menuItems = [
   {
@@ -57,7 +58,7 @@ const menuItems = [
     Icon: AIIcon,
     label: "Alertas IA",
     path: "/ai-insights",
-    color: "text-emerald-400",
+    color: "text-blue-400",
     hoverColor: "group-hover:text-emerald-400",
     activeBg: "bg-emerald-900/30",
   },
@@ -70,12 +71,20 @@ const menuItems = [
     activeBg: "bg-yellow-900/30",
   },
   {
-    Icon: CompareIcon,
-    label: "Comparação",
-    path: "/compare",
+    Icon: LabIcon,
+    label: "Laboratório",
+    path: "/lab",
     color: "text-purple-400",
     hoverColor: "group-hover:text-purple-400",
     activeBg: "bg-purple-900/30",
+  },
+  {
+    Icon: MonetizationIcon,
+    label: "Monetização",
+    path: "/monetization",
+    color: "text-green-400",
+    hoverColor: "group-hover:text-green-400",
+    activeBg: "bg-green-900/30",
   },
 ];
 
@@ -113,7 +122,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <img
-              src="src/assets/avatar.png"
+              src="/avatar.png"
               alt="CiberNinja"
               className="w-11 h-11 rounded-full object-cover z-10"
             />
