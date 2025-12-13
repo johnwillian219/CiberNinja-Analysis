@@ -2,11 +2,11 @@
 import {
   FileText,
   Zap,
-  TrendingUp,
   AlertTriangle,
   Copy,
-  Check,
+  CheckCircle, // ← Corrigido: CheckCircle em vez de Check
   Clock,
+  Hash, // ← Adicionado o Hash que faltava
 } from "lucide-react";
 import { useState } from "react";
 
@@ -88,11 +88,11 @@ Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
         </p>
       </div>
 
-      {/* Análise da IA */}
+      {/* Análise da IA — só aparece após digitar */}
       {userDescription && (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
-            {/* Score e análise da descrição atual */}
+            {/* Score e análise */}
             <div>
               <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-4 justify-center">
                 <FileText className="w-8 h-8 text-purple-400" />
@@ -118,7 +118,7 @@ Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
                   <ul className="space-y-3">
                     {analysis.strengths.map((strength, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <Check className="w-6 h-6 text-emerald-400 mt-0.5" />
+                        <CheckCircle className="w-6 h-6 text-emerald-400 mt-0.5" />
                         <p className="text-gray-200">{strength}</p>
                       </li>
                     ))}
@@ -142,7 +142,7 @@ Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
               </div>
             </div>
 
-            {/* Descrição otimizada pela IA */}
+            {/* Descrição otimizada */}
             <div>
               <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-4 justify-center">
                 <Zap className="w-8 h-8 text-emerald-400" />
@@ -158,7 +158,7 @@ Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
                 >
                   {copiedSection === "full" ? (
                     <>
-                      <Check className="w-5 h-5" />
+                      <CheckCircle className="w-5 h-5" />
                       Copiado!
                     </>
                   ) : (
@@ -175,7 +175,7 @@ Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
             </div>
           </div>
 
-          {/* Seções rápidas para copiar */}
+          {/* Seções rápidas */}
           <div className="max-w-5xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-8 text-center">
               Seções Prontas para Copiar
@@ -193,7 +193,7 @@ Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
                 <div className="flex items-center justify-between mb-4">
                   <Clock className="w-7 h-7 text-cyan-400" />
                   {copiedSection === "timestamps" && (
-                    <Check className="w-6 h-6 text-emerald-400" />
+                    <CheckCircle className="w-6 h-6 text-emerald-400" />
                   )}
                 </div>
                 <p className="text-cyan-300 font-bold mb-2">
@@ -219,7 +219,7 @@ Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
                 <div className="flex items-center justify-between mb-4">
                   <Hash className="w-7 h-7 text-purple-400" />
                   {copiedSection === "hashtags" && (
-                    <Check className="w-6 h-6 text-emerald-400" />
+                    <CheckCircle className="w-6 h-6 text-emerald-400" />
                   )}
                 </div>
                 <p className="text-purple-300 font-bold mb-2">
@@ -235,7 +235,7 @@ Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
         </>
       )}
 
-      {/* Placeholder quando vazio */}
+      {/* Placeholder inicial */}
       {!userDescription && (
         <div className="text-center py-20">
           <p className="text-gray-400 text-2xl">
