@@ -12,6 +12,7 @@ import SettingsIcon from "@icons/SettingsIcon";
 import ProfileIcon from "@icons/ProfileIcon";
 import LogoutIcon from "@icons/LogoutIcon";
 import MonetizationIcon from "@icons/MonetizationIcon";
+import CalendarIcon from "@icons/CalendarIcon";
 
 const menuItems = [
   {
@@ -65,7 +66,7 @@ const menuItems = [
   {
     Icon: LibraryIcon,
     label: "Biblioteca de Vídeos",
-    path: "/videos",
+    path: "/library",
     color: "text-yellow-400",
     hoverColor: "group-hover:text-yellow-400",
     activeBg: "bg-yellow-900/30",
@@ -85,6 +86,14 @@ const menuItems = [
     color: "text-green-400",
     hoverColor: "group-hover:text-green-400",
     activeBg: "bg-green-900/30",
+  },
+  {
+    Icon: CalendarIcon,
+    label: "Calendário",
+    path: "/calendar",
+    color: "text-orange-400",
+    hoverColor: "group-hover:text-orange-400",
+    activeBg: "bg-orange-900/30",
   },
 ];
 

@@ -17,6 +17,8 @@ import InstagramMonetizationPage from "./pages/monetization/InstagramMonetizatio
 import YouTubeMonetizationPage from "./pages/monetization/YouTubeMonetizationPage";
 import TikTokMonetizationPage from "./pages/monetization/TikTokMonetizationPage";
 import LabPage from "./pages/LabPage";
+import LibraryPage from "./pages/LibraryPage";
+import CalendarPage from "./pages/CalendarPage";
 
 export default function App() {
   return (
@@ -36,6 +38,8 @@ export default function App() {
         <Route path="/instagram" element={<InstagramPage />} />
         <Route path="/facebook" element={<FacebookPage />} />
         <Route path="/monetization" element={<MonetizationPage />} />
+        <Route path="/library" element={<LibraryPage />} />
+
         <Route
           path="/monetization/facebook"
           element={<FacebookMonetizationPage />}
@@ -53,6 +57,7 @@ export default function App() {
           element={<TikTokMonetizationPage />}
         />
         <Route path="/lab" element={<LabPage />} />
+        <Route path="/calendar" element={<CalendarPage />} />
       </Routes>
     </BrowserRouter>
   );
