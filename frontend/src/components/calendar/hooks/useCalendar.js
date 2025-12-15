@@ -1,85 +1,121 @@
-// src/components/calendar/hooks/useCalendar.js
+// src/components/calendar/hooks/useCalendarEvents.js
 import { useState, useMemo } from "react";
-import { mockEvents } from "../data/mockEvents";
+import { useEvents } from "../context/EventsContext";
 
-export default function useCalendar(initialView = "month") {
+export default function useCalendarEvents(initialView = "month") {
+  const { events, getEventsForDate } = useEvents();
   const [currentView, setCurrentView] = useState(initialView);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 11)); // Dezembro 2025 (mês 11 = Dezembro)
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  // Cálculo dos dias do mês atual
-  const daysInMonth = useMemo(() => {
-    return new Date(
-      currentMonth.getFullYear(),
-      currentMonth.getMonth() + 1,
-      0
-    ).getDate();
-  }, [currentMonth]);
+  // Cálculo de dias no mês
+  const daysInMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+    0
+  ).getDate();
 
-  // Dia da semana do primeiro dia do mês (0 = Domingo, 1 = Segunda, ..., 6 = Sábado)
-  // Ajustado para começar na segunda-feira (padrão brasileiro/europeu)
-  const firstDayWeekday = useMemo(() => {
-    const firstDay = new Date(
-      currentMonth.getFullYear(),
-      currentMonth.getMonth(),
-      1
-    ).getDay();
-    return firstDay === 0 ? 6 : firstDay - 1; // 0 = Segunda, 6 = Domingo
-  }, [currentMonth]);
+  // Primeiro dia da semana do mês
+  const firstDayOfMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth(),
+    1
+  ).getDay();
 
-  // Filtra eventos do mês atual
-  const monthEvents = useMemo(() => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth() + 1; // getMonth() é 0-based
+  // Ajuste para começar na segunda-feira
+  const firstDayWeekday = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
 
-    return mockEvents.filter((event) => {
-      const [eventYear, eventMonth] = event.date.split("-").map(Number);
-      return eventYear === year && eventMonth === month;
-    });
-  }, [currentMonth]);
-
-  // Retorna eventos de um dia específico (1 a 31)
-  const getEventsForDay = (day) => {
-    const dateStr = `${currentMonth.getFullYear()}-${String(
-      currentMonth.getMonth() + 1
-    ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return monthEvents.filter((event) => event.date === dateStr);
-  };
-
-  // Navegação entre meses
-  const navigateMonth = (direction) => {
+  // Navegação
+  const goToPreviousMonth = () => {
     setCurrentMonth((prev) => {
       const newDate = new Date(prev);
-      newDate.setMonth(prev.getMonth() + direction);
+      newDate.setMonth(prev.getMonth() - 1);
       return newDate;
     });
   };
 
-  const goToPreviousMonth = () => navigateMonth(-1);
-  const goToNextMonth = () => navigateMonth(1);
-
-  // Formatação simples de data (pode ser melhorada com date-fns se quiser)
-  const formatMonthYear = () => {
-    return currentMonth.toLocaleDateString("pt-BR", {
-      month: "long",
-      year: "numeric",
+  const goToNextMonth = () => {
+    setCurrentMonth((prev) => {
+      const newDate = new Date(prev);
+      newDate.setMonth(prev.getMonth() + 1);
+      return newDate;
     });
   };
 
+  const goToToday = () => {
+    setCurrentMonth(new Date());
+  };
+
+  // Formatação do mês/ano
+  const formattedMonthYear = currentMonth.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
+
+  // Função para obter eventos de uma data específica
+  const getEventsForDateFormatted = (dateString) => {
+    return getEventsForDate(dateString);
+  };
+
+  // Gerar array de dias do mês com seus eventos
+  const monthDaysWithEvents = useMemo(() => {
+    const daysArray = [];
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth() + 1; // Mês 1-12
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${month.toString().padStart(2, "0")}-${day
+        .toString()
+        .padStart(2, "0")}`;
+      const dayEvents = getEventsForDate(dateStr);
+
+      daysArray.push({
+        date: day,
+        dateStr: dateStr,
+        isToday: isToday(year, month, day),
+        events: dayEvents,
+        hasEvents: dayEvents.length > 0,
+      });
+    }
+
+    return daysArray;
+  }, [currentMonth, events]);
+
+  // Verificar se é hoje
+  const isToday = (year, month, day) => {
+    const today = new Date();
+    return (
+      today.getFullYear() === year &&
+      today.getMonth() + 1 === month &&
+      today.getDate() === day
+    );
+  };
+
   return {
-    // Estado
+    // Estado e navegação do calendário
     currentView,
     setCurrentView,
     currentMonth,
-
-    // Navegação
-    goToPreviousMonth,
-    goToNextMonth,
-    formatMonthYear,
-
-    // Dados do grid
+    setCurrentMonth,
     daysInMonth,
     firstDayWeekday,
-    monthEvents,
-    getEventsForDay,
+    goToPreviousMonth,
+    goToNextMonth,
+    goToToday,
+    formattedMonthYear,
+
+    // Dados de eventos
+    events,
+    getEventsForDate: getEventsForDateFormatted,
+    monthDaysWithEvents,
+
+    // Estatísticas
+    totalEvents: events.length,
+    eventsThisMonth: events.filter((event) => {
+      const eventDate = new Date(event.date);
+      return (
+        eventDate.getMonth() === currentMonth.getMonth() &&
+        eventDate.getFullYear() === currentMonth.getFullYear()
+      );
+    }).length,
   };
 }

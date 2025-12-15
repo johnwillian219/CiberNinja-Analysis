@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { EventsProvider } from "./components/calendar/context/EventsContext"; // Importar o provider
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -19,46 +20,51 @@ import TikTokMonetizationPage from "./pages/monetization/TikTokMonetizationPage"
 import LabPage from "./pages/LabPage";
 import LibraryPage from "./pages/LibraryPage";
 import CalendarPage from "./pages/CalendarPage";
+import SchedulingPage from "./pages/SchedulingPage";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/ai-insights" element={<InsightsPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/logout" element={<LogoutPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/youtube" element={<YouTubePage />} />
-        <Route path="/tiktok" element={<TikTokPage />} />
-        <Route path="/instagram" element={<InstagramPage />} />
-        <Route path="/facebook" element={<FacebookPage />} />
-        <Route path="/monetization" element={<MonetizationPage />} />
-        <Route path="/library" element={<LibraryPage />} />
+      {/* Envolve todas as rotas com o EventsProvider */}
+      <EventsProvider>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/ai-insights" element={<InsightsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/logout" element={<LogoutPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/youtube" element={<YouTubePage />} />
+          <Route path="/tiktok" element={<TikTokPage />} />
+          <Route path="/instagram" element={<InstagramPage />} />
+          <Route path="/facebook" element={<FacebookPage />} />
+          <Route path="/monetization" element={<MonetizationPage />} />
+          <Route path="/library" element={<LibraryPage />} />
 
-        <Route
-          path="/monetization/facebook"
-          element={<FacebookMonetizationPage />}
-        />
-        <Route
-          path="/monetization/instagram"
-          element={<InstagramMonetizationPage />}
-        />
-        <Route
-          path="/monetization/youtube"
-          element={<YouTubeMonetizationPage />}
-        />
-        <Route
-          path="/monetization/tiktok"
-          element={<TikTokMonetizationPage />}
-        />
-        <Route path="/lab" element={<LabPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-      </Routes>
+          <Route
+            path="/monetization/facebook"
+            element={<FacebookMonetizationPage />}
+          />
+          <Route
+            path="/monetization/instagram"
+            element={<InstagramMonetizationPage />}
+          />
+          <Route
+            path="/monetization/youtube"
+            element={<YouTubeMonetizationPage />}
+          />
+          <Route
+            path="/monetization/tiktok"
+            element={<TikTokMonetizationPage />}
+          />
+          <Route path="/lab" element={<LabPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/scheduling" element={<SchedulingPage />} />
+        </Routes>
+      </EventsProvider>
     </BrowserRouter>
   );
 }
