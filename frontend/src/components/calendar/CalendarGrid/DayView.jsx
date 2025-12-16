@@ -1,5 +1,6 @@
 // src/components/calendar/CalendarGrid/DayView.jsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   MoreVertical,
   ChevronLeft,
@@ -13,6 +14,7 @@ import { useEvents } from "../context/EventsContext";
 import DeleteConfirmationModal from "../../Modal/DeleteConfirmationModal";
 
 export default function DayView({ platform }) {
+  const navigate = useNavigate();
   const { getEventsForPlatform, deleteEvent, getEventsForDate } = useEvents();
   const [eventToDelete, setEventToDelete] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date()); // Data selecionada dinâmica
@@ -340,33 +342,16 @@ export default function DayView({ platform }) {
               >
                 Voltar para Hoje
               </button>
-              <button className="px-6 py-3 bg-gray-700/70 hover:bg-gray-600/70 rounded-xl text-gray-300 font-medium transition-colors">
+              <button
+                onClick={() => navigate("/scheduling")}
+                className="px-6 py-3 bg-gray-700/70 hover:bg-gray-600/70 rounded-xl text-gray-300 font-medium transition-colors"
+              >
                 Agendar Conteúdo
               </button>
             </div>
           </div>
         )}
       </div>
-
-      {/* Sugestão da IA (apenas se for hoje e tiver poucos eventos) */}
-      {isToday() && dayStats.totalEvents < 3 && (
-        <div className="mt-10 bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/50 rounded-2xl p-8">
-          <div className="flex flex-col lg:flex-row items-center gap-6">
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold text-purple-300 mb-3">
-                Sugestão Inteligente da IA
-              </h3>
-              <p className="text-gray-200">
-                Seu público está mais ativo agora. Ideal para vídeo longo sobre
-                "Phishing Avançado".
-              </p>
-            </div>
-            <button className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-bold hover:shadow-xl hover:shadow-purple-500/50 transition-all whitespace-nowrap">
-              Criar Post Sugerido
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Modal de confirmação */}
       <DeleteConfirmationModal
