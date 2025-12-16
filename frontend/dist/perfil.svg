@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D1FF"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+
+ шылық
+  <!-- Base do dashboard -->
+  <rect x="12" y="12" width="76" height="76" rx="12" fill="url(#grad3)"/>
+
+  <!-- Grid analytics -->
+  <rect x="26" y="50" width="10" height="18" fill="#FFFFFF"/>
+  <rect x="44" y="40" width="10" height="28" fill="#FFFFFF"/>
+  <rect x="62" y="30" width="10" height="38" fill="#FFFFFF"/>
+
+  <!-- Corte ninja -->
+  <polygon points="12,30 30,12 36,12 12,36" fill="#0F172A"/>
+</svg>
