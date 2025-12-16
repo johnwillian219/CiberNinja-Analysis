@@ -6,142 +6,217 @@ import {
   Clock,
   PlayCircle,
   TrendingUp,
+  Sparkles,
+  Target,
+  Link as LinkIcon,
 } from "lucide-react";
+import { useState } from "react";
 
 export default function ContentDissector() {
+  const [videoUrl, setVideoUrl] = useState("");
+
+  const keyMoments = [
+    {
+      time: "00:12",
+      title: "Hook Perfeito",
+      description:
+        "Pergunta direta + promessa clara → pico inicial de retenção",
+      color: "emerald",
+      icon: Zap,
+    },
+    {
+      time: "03:42",
+      title: "Transição Inteligente",
+      description: "Teaser do próximo tópico mantém 85% da audiência",
+      color: "cyan",
+      icon: Clock,
+    },
+    {
+      time: "08:15",
+      title: "Queda Crítica",
+      description: "Parte técnica longa → perda de 35% da audiência",
+      color: "red",
+      icon: AlertTriangle,
+    },
+  ];
+
+  const recommendations = [
+    {
+      icon: Film,
+      title: "Cortes Rápidos + B-Roll",
+      description: "Insira animações e demonstrações para recuperar atenção",
+      color: "emerald",
+    },
+    {
+      icon: Sparkles,
+      title: "Capítulos Claros",
+      description: "Timestamps aumentam watch time em até 42%",
+      color: "purple",
+    },
+    {
+      icon: TrendingUp,
+      title: "Final Impactante",
+      description: "CTA visual forte + teaser para binge watching",
+      color: "cyan",
+    },
+  ];
+
   return (
-    <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-3xl p-10 mb-16">
-      {/* Título principal */}
-      <h2 className="text-3xl lg:text-4xl font-bold text-white mb-12 text-center">
-        Dissector de Conteúdo
-      </h2>
-
-      {/* Área de upload/link do vídeo */}
-      <div className="max-w-4xl mx-auto mb-16">
-        <div className="border-2 border-dashed border-gray-600 rounded-3xl p-12 text-center hover:border-purple-500/50 transition-all cursor-pointer">
-          <PlayCircle className="w-20 h-20 text-gray-500 mx-auto mb-6" />
-          <p className="text-2xl text-gray-300 mb-6 font-medium">
-            Cole o link do seu vídeo aqui
-          </p>
-          <input
-            type="text"
-            placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-            className="w-full max-w-3xl mx-auto px-8 py-5 bg-gray-700/70 border border-gray-600 rounded-2xl text-white text-lg text-center focus:border-purple-500 focus:outline-none transition-all"
-          />
-          <p className="text-gray-500 text-sm mt-6">
-            A IA analisará hook, pacing, estrutura e momentos de retenção
-          </p>
+    <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/30 rounded-2xl p-6">
+      {/* Cabeçalho compacto */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500">
+            <PlayCircle className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">
+              Dissector de Conteúdo
+            </h2>
+            <p className="text-gray-400 text-sm">
+              Análise de retenção e pacing
+            </p>
+          </div>
         </div>
+
+        {videoUrl && (
+          <button
+            onClick={() => setVideoUrl("")}
+            className="text-gray-400 hover:text-gray-300 text-sm font-medium"
+          >
+            Limpar
+          </button>
+        )}
       </div>
 
-      {/* Momentos chave detectados pela IA */}
-      <div className="mb-16">
-        <h3 className="text-2xl lg:text-3xl font-bold text-white mb-10 text-center flex items-center justify-center gap-5">
-          <Zap className="w-10 h-10 text-purple-400" />
-          Momentos Chave Detectados pela IA
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Hook inicial */}
-          <div className="bg-gradient-to-br from-emerald-900/30 to-gray-900 border border-emerald-500/40 rounded-3xl p-8 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all">
-            <div className="flex items-center gap-4 mb-4">
-              <Clock className="w-8 h-8 text-emerald-400" />
-              <span className="text-2xl font-bold text-emerald-400">00:12</span>
+      {/* Input do link do vídeo */}
+      <div className="mb-6">
+        <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center hover:border-purple-500/50 transition-colors cursor-pointer">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-gray-700/50 flex items-center justify-center mb-3">
+              <LinkIcon className="w-5 h-5 text-gray-400" />
             </div>
-            <p className="text-xl font-bold text-white mb-3">Hook Perfeito</p>
-            <p className="text-gray-200 leading-relaxed">
-              Pergunta direta + promessa clara nos primeiros segundos → pico
-              inicial de retenção
-            </p>
-          </div>
-
-          {/* Transição suave */}
-          <div className="bg-gradient-to-br from-cyan-900/30 to-gray-900 border border-cyan-500/40 rounded-3xl p-8 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all">
-            <div className="flex items-center gap-4 mb-4">
-              <Clock className="w-8 h-8 text-cyan-400" />
-              <span className="text-2xl font-bold text-cyan-400">03:42</span>
-            </div>
-            <p className="text-xl font-bold text-white mb-3">
-              Transição Inteligente
-            </p>
-            <p className="text-gray-200 leading-relaxed">
-              Teaser do próximo tópico mantém 85% da audiência engajada
-            </p>
-          </div>
-
-          {/* Ponto crítico */}
-          <div className="bg-gradient-to-br from-red-900/30 to-gray-900 border border-red-500/40 rounded-3xl p-8 hover:shadow-2xl hover:shadow-red-500/20 transition-all">
-            <div className="flex items-center gap-4 mb-4">
-              <AlertTriangle className="w-8 h-8 text-red-400" />
-              <span className="text-2xl font-bold text-red-400">08:15</span>
-            </div>
-            <p className="text-xl font-bold text-white mb-3">
-              Queda Crítica Detectada
-            </p>
-            <p className="text-gray-200 leading-relaxed">
-              Parte técnica longa sem elementos visuais → perda de 35% da
-              audiência
+            <label className="text-sm text-gray-300 mb-2 block">
+              Cole o link do seu vídeo
+            </label>
+            <input
+              type="text"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded text-white text-sm text-center placeholder-gray-500 focus:border-purple-500 focus:outline-none transition-colors"
+            />
+            <p className="text-gray-500 text-xs mt-2">
+              IA analisa hook, pacing e momentos de retenção
             </p>
           </div>
         </div>
       </div>
 
-      {/* Recomendações da IA */}
-      <div>
-        <h3 className="text-2xl lg:text-3xl font-bold text-white mb-10 text-center flex items-center justify-center gap-5">
-          <TrendingUp className="w-10 h-10 text-emerald-400" />
-          Recomendações da IA para Maximizar Retenção
-        </h3>
+      {/* Análise da IA */}
+      {videoUrl ? (
+        <>
+          {/* Momentos chave */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Target className="w-4 h-4 text-purple-400" />
+              <h3 className="text-sm font-semibold text-white">
+                Momentos Chave
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {keyMoments.map((moment, index) => {
+                const Icon = moment.icon;
+                const colorClass = `text-${moment.color}-400`;
+                const bgClass = `bg-${moment.color}-500/10 border-${moment.color}-500/20`;
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Recomendação 1 */}
-          <div className="bg-gradient-to-br from-emerald-900/30 to-gray-900 border border-emerald-500/40 rounded-3xl p-8 text-center hover:-translate-y-2 transition-all">
-            <Zap className="w-16 h-16 text-emerald-400 mx-auto mb-6" />
-            <p className="text-2xl font-bold text-emerald-300 mb-4">
-              Cortes Rápidos + B-Roll
-            </p>
-            <p className="text-gray-300 leading-relaxed">
-              No ponto crítico (8:15), insira animações, demonstrações na tela e
-              cortes dinâmicos para recuperar atenção
-            </p>
+                return (
+                  <div
+                    key={index}
+                    className={`${bgClass} border rounded-lg p-3 hover:opacity-90 transition-opacity`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Icon className={`w-4 h-4 ${colorClass}`} />
+                        <span className={`text-sm font-bold ${colorClass}`}>
+                          {moment.time}
+                        </span>
+                      </div>
+                      <span className={`text-xs font-medium ${colorClass}`}>
+                        {moment.title}
+                      </span>
+                    </div>
+                    <p className="text-gray-300 text-xs">
+                      {moment.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Recomendação 2 */}
-          <div className="bg-gradient-to-br from-purple-900/30 to-gray-900 border border-purple-500/40 rounded-3xl p-8 text-center hover:-translate-y-2 transition-all">
-            <Film className="w-16 h-16 text-purple-400 mx-auto mb-6" />
-            <p className="text-2xl font-bold text-purple-300 mb-4">
-              Capítulos Claros
-            </p>
-            <p className="text-gray-300 leading-relaxed">
-              Divida o vídeo em seções com timestamps na descrição — aumenta
-              watch time em até 42%
-            </p>
-          </div>
+          {/* Recomendações */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-semibold text-white">
+                  Recomendações
+                </h3>
+              </div>
+              <span className="text-xs text-emerald-400 font-bold">
+                +65% retenção
+              </span>
+            </div>
 
-          {/* Recomendação 3 */}
-          <div className="bg-gradient-to-br from-cyan-900/30 to-gray-900 border border-cyan-500/40 rounded-3xl p-8 text-center hover:-translate-y-2 transition-all">
-            <TrendingUp className="w-16 h-16 text-cyan-400 mx-auto mb-6" />
-            <p className="text-2xl font-bold text-cyan-300 mb-4">
-              Final Impactante
-            </p>
-            <p className="text-gray-300 leading-relaxed">
-              Termine com CTA visual forte + teaser do próximo vídeo para
-              incentivar binge watching
-            </p>
-          </div>
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+              {recommendations.map((rec, index) => {
+                const Icon = rec.icon;
+                const colorClass = `text-${rec.color}-400`;
+                const bgClass = `bg-${rec.color}-500/10 border-${rec.color}-500/20`;
 
-        {/* Insight final */}
-        <div className="mt-12 text-center">
-          <p className="text-2xl text-emerald-400 font-bold">
-            Potencial de melhoria: +65% em retenção média
+                return (
+                  <div
+                    key={index}
+                    className={`${bgClass} border rounded-lg p-3 hover:opacity-90 transition-opacity`}
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <Icon className={`w-6 h-6 ${colorClass} mb-2`} />
+                      <h4 className={`text-xs font-bold ${colorClass} mb-1`}>
+                        {rec.title}
+                      </h4>
+                      <p className="text-gray-300 text-xs">{rec.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Insight final */}
+            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3 text-center">
+              <p className="text-emerald-400 text-sm font-bold">
+                Potencial de melhoria: +65% em retenção média
+              </p>
+              <p className="text-gray-400 text-xs mt-1">
+                Implemente essas mudanças para manter audiência até o final
+              </p>
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Estado vazio */
+        <div className="text-center py-10 border-2 border-dashed border-gray-600 rounded-lg">
+          <div className="w-12 h-12 rounded-full bg-gray-700/50 flex items-center justify-center mx-auto mb-4">
+            <PlayCircle className="w-6 h-6 text-gray-500" />
+          </div>
+          <p className="text-gray-400 text-sm">
+            Cole um link do YouTube para análise
           </p>
-          <p className="text-gray-400 mt-4">
-            Implementando essas mudanças, seu vídeo pode manter a audiência até
-            o final
+          <p className="text-gray-500 text-xs mt-1">
+            IA detecta pontos críticos e sugere melhorias em tempo real
           </p>
         </div>
-      </div>
+      )}
     </div>
   );
 }

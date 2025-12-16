@@ -32,12 +32,12 @@ export default function LibraryHeader() {
           <div className="flex flex-col sm:flex-row gap-6 w-full lg:w-auto">
             <button className="flex items-center justify-center gap-4 px-10 py-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl text-white text-xl font-bold hover:shadow-2xl hover:shadow-purple-500/40 transition-all">
               <PlusCircle className="w-8 h-8" />
-              Importar Conteúdo
+              Importar
             </button>
 
             <button className="flex items-center justify-center gap-4 px-10 py-6 bg-gray-700/70 border border-gray-600 rounded-3xl text-white text-xl font-medium hover:bg-gray-600 transition-all">
               <Filter className="w-8 h-8" />
-              Filtros Avançados
+              Filtros
             </button>
           </div>
         </div>

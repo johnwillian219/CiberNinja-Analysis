@@ -4,9 +4,11 @@ import {
   Zap,
   AlertTriangle,
   Copy,
-  CheckCircle, // ← Corrigido: CheckCircle em vez de Check
+  CheckCircle,
   Clock,
-  Hash, // ← Adicionado o Hash que faltava
+  Hash,
+  Sparkles,
+  Clipboard,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -20,20 +22,20 @@ export default function DescriptionDoctor() {
     setTimeout(() => setCopiedSection(null), 2000);
   };
 
-  // Análise simulada da IA
+  // Dados da análise
   const analysis = {
     score: 7.1,
     seoScore: "Bom",
     length: userDescription.length || 850,
     strengths: [
-      "Boa densidade de palavras-chave naturais",
+      "Boa densidade de palavras-chave",
       "Inclui links relevantes",
       "Tem chamadas para ação (CTA)",
     ],
     improvements: [
       "Faltam timestamps para vídeos longos",
       "Não usa hashtags no final",
-      "Poderia ter mais emojis para destaque visual",
+      "Poderia ter mais emojis",
       "Falta menção a vídeos relacionados",
     ],
   };
@@ -44,202 +46,240 @@ Neste vídeo eu revelo as estratégias que usei para explodir meu canal em 2025.
 
 ⏰ TIMESTAMPS:
 00:00 - Introdução
-01:15 - O maior erro que 90% dos creators cometem
-03:42 - A técnica de hook que triplicou meu CTR
-06:28 - Como usar thumbnails para dobrar as views
-09:15 - O segredo dos títulos que o YouTube AMA
-12:50 - Tags que realmente funcionam em 2025
-15:30 - Conclusão e dica final
+01:15 - O maior erro que 90% cometem
+03:42 - Técnica de hook que triplicou CTR
+06:28 - Thumbnails que dobram views
+09:15 - Títulos que o YouTube AMA
+12:50 - Tags que funcionam em 2025
 
-🛠 Ferramentas mencionadas:
-• TubeBuddy (melhor extensão): https://www.tubebuddy.com/ciberninja
+🛠 Ferramentas:
+• TubeBuddy: https://www.tubebuddy.com/ciberninja
 • VidIQ: https://vidiq.com/ciberninja
 
-🚀 Quer aprender cibersegurança do zero até nível profissional?
-Curso COMPLETO de Hacking Ético: https://ciberninja.com.br/curso
+🚀 Curso COMPLETO de Hacking Ético:
+https://ciberninja.com.br/curso
 
-💬 Comenta aqui embaixo: qual sua maior dificuldade no YouTube hoje?
+💬 Comenta: qual sua maior dificuldade?
 
-#YouTube2025 #HackingÉtico #CrescernoYouTube #AlgoritmoYouTube #Cibersegurança
+#YouTube2025 #HackingÉtico #CrescernoYouTube #AlgoritmoYouTube
 
-Inscreva-se e ative o sininho 🔔 para não perder os próximos vídeos!`;
+Inscreva-se e ative o sininho 🔔`;
+
+  const quickSections = [
+    {
+      icon: Clock,
+      title: "Timestamps Prontos",
+      color: "cyan",
+      content: `⏰ TIMESTAMPS:
+00:00 - Introdução
+03:42 - Hook secreto
+09:15 - Thumbnails que convertem`,
+      key: "timestamps",
+    },
+    {
+      icon: Hash,
+      title: "Hashtags Otimizadas",
+      color: "purple",
+      content:
+        "#YouTube2025 #HackingÉtico #CrescernoYouTube #AlgoritmoYouTube #Cibersegurança",
+      key: "hashtags",
+    },
+  ];
 
   return (
-    <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-3xl p-10 mb-16">
-      <h2 className="text-3xl lg:text-4xl font-bold text-white mb-10 text-center">
-        Médico de Descrições
-      </h2>
+    <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/30 rounded-2xl p-6">
+      {/* Cabeçalho compacto */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+            <FileText className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">
+              Médico de Descrições
+            </h2>
+            <p className="text-gray-400 text-sm">Otimize SEO e engajamento</p>
+          </div>
+        </div>
 
-      {/* Input da descrição do usuário */}
-      <div className="max-w-5xl mx-auto mb-12">
-        <label className="text-xl text-gray-300 mb-4 block text-center">
-          Cole a descrição atual do seu vídeo
-        </label>
-        <textarea
-          value={userDescription}
-          onChange={(e) => setUserDescription(e.target.value)}
-          placeholder="Cole aqui a descrição completa do seu vídeo..."
-          rows={10}
-          className="w-full px-8 py-6 bg-gray-700/70 border border-gray-600 rounded-3xl text-white text-lg resize-none focus:border-purple-500 focus:outline-none transition-all"
-        />
-        <p className="text-gray-400 text-center mt-4">
-          {analysis.length} caracteres • A IA analisa SEO, estrutura e
-          engajamento
-        </p>
+        {userDescription && (
+          <button
+            onClick={() => setUserDescription("")}
+            className="text-gray-400 hover:text-gray-300 text-sm font-medium"
+          >
+            Limpar
+          </button>
+        )}
       </div>
 
-      {/* Análise da IA — só aparece após digitar */}
-      {userDescription && (
+      {/* Textarea da descrição */}
+      <div className="mb-6">
+        <label className="text-sm text-gray-300 mb-2 block">
+          Cole a descrição do seu vídeo
+        </label>
+        <div className="relative">
+          <textarea
+            value={userDescription}
+            onChange={(e) => setUserDescription(e.target.value)}
+            placeholder="Cole aqui a descrição completa do seu vídeo..."
+            rows={6}
+            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all resize-none pr-24"
+          />
+          {userDescription.length > 0 && (
+            <span className="absolute right-3 top-3 text-gray-400 text-xs">
+              {analysis.length} chars
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Análise da IA */}
+      {userDescription ? (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
-            {/* Score e análise */}
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-4 justify-center">
-                <FileText className="w-8 h-8 text-purple-400" />
-                Análise da Sua Descrição
-              </h3>
-              <div className="bg-gradient-to-br from-purple-900/30 to-gray-900 border border-purple-500/40 rounded-3xl p-8 text-center">
-                <p className="text-6xl font-bold text-purple-400 mb-4">
-                  {analysis.score}/10
-                </p>
-                <p className="text-2xl text-white mb-2">
-                  Pontuação SEO & Engajamento
-                </p>
-                <p className="text-4xl font-bold text-purple-300">
-                  {analysis.seoScore}
-                </p>
-              </div>
-
-              <div className="mt-8 space-y-6">
-                <div className="bg-emerald-900/20 border border-emerald-500/40 rounded-2xl p-6">
-                  <h4 className="text-xl font-bold text-emerald-400 mb-4">
-                    Pontos Fortes
-                  </h4>
-                  <ul className="space-y-3">
-                    {analysis.strengths.map((strength, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-emerald-400 mt-0.5" />
-                        <p className="text-gray-200">{strength}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="bg-red-900/20 border border-red-500/40 rounded-2xl p-6">
-                  <h4 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-3">
-                    <AlertTriangle className="w-6 h-6" />
-                    Oportunidades de Melhoria
-                  </h4>
-                  <ul className="space-y-3">
-                    {analysis.improvements.map((imp, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <AlertTriangle className="w-6 h-6 text-red-400 mt-0.5" />
-                        <p className="text-gray-200">{imp}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Descrição otimizada */}
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-4 justify-center">
-                <Zap className="w-8 h-8 text-emerald-400" />
-                Descrição Otimizada pela IA
-              </h3>
-              <div className="bg-gradient-to-br from-emerald-900/30 to-gray-900 border border-emerald-500/40 rounded-3xl p-8 relative">
-                <pre className="text-gray-200 text-lg leading-relaxed whitespace-pre-wrap font-sans">
-                  {aiOptimizedDescription}
-                </pre>
-                <button
-                  onClick={() => handleCopy(aiOptimizedDescription, "full")}
-                  className="absolute top-6 right-6 flex items-center gap-3 px-6 py-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-400 font-bold hover:bg-emerald-500/30 transition-all"
-                >
-                  {copiedSection === "full" ? (
-                    <>
-                      <CheckCircle className="w-5 h-5" />
-                      Copiado!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-5 h-5" />
-                      Copiar Tudo
-                    </>
-                  )}
-                </button>
-              </div>
-              <p className="text-center text-emerald-400 text-lg mt-6 font-bold">
-                Estimativa: +85% no engajamento e SEO com esta versão
+          {/* Score e SEO */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-purple-400">
+                {analysis.score}/10
               </p>
+              <p className="text-gray-300 text-xs mt-1">Pontuação IA</p>
             </div>
+            <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-emerald-400">
+                {analysis.seoScore}
+              </p>
+              <p className="text-gray-300 text-xs mt-1">SEO Score</p>
+            </div>
+          </div>
+
+          {/* Análise detalhada */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {/* Pontos fortes */}
+            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-semibold text-emerald-400">
+                  Pontos Fortes
+                </h3>
+              </div>
+              <ul className="space-y-2">
+                {analysis.strengths.map((item, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <CheckCircle className="w-3 h-3 text-emerald-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-gray-300 text-sm">{item}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Melhorias */}
+            <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
+                <h3 className="text-sm font-semibold text-red-400">
+                  Melhorias
+                </h3>
+              </div>
+              <ul className="space-y-2">
+                {analysis.improvements.map((item, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <AlertTriangle className="w-3 h-3 text-red-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-gray-300 text-sm">{item}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Descrição otimizada */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-semibold text-white">
+                  Descrição Otimizada
+                </h3>
+              </div>
+              <button
+                onClick={() => handleCopy(aiOptimizedDescription, "full")}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg text-emerald-400 text-xs font-medium transition-colors"
+              >
+                {copiedSection === "full" ? (
+                  <>
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Copiado
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    Copiar Tudo
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="bg-gray-900/50 border border-gray-700/30 rounded-lg p-4 max-h-64 overflow-y-auto">
+              <pre className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap font-sans">
+                {aiOptimizedDescription}
+              </pre>
+            </div>
+            <p className="text-emerald-400 text-xs mt-2 text-center">
+              Estimativa: +85% engajamento e SEO
+            </p>
           </div>
 
           {/* Seções rápidas */}
-          <div className="max-w-5xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-8 text-center">
-              Seções Prontas para Copiar
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div
-                className="bg-gray-700/50 rounded-2xl p-6 cursor-pointer hover:bg-gray-700 transition-all"
-                onClick={() =>
-                  handleCopy(
-                    "⏰ TIMESTAMPS:\n00:00 - Introdução\n03:42 - Hook secreto\n09:15 - Thumbnails que convertem",
-                    "timestamps"
-                  )
-                }
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <Clock className="w-7 h-7 text-cyan-400" />
-                  {copiedSection === "timestamps" && (
-                    <CheckCircle className="w-6 h-6 text-emerald-400" />
-                  )}
-                </div>
-                <p className="text-cyan-300 font-bold mb-2">
-                  Timestamps Prontos
-                </p>
-                <pre className="text-gray-300 text-sm whitespace-pre-wrap">
-                  {`⏰ TIMESTAMPS:
-00:00 - Introdução
-03:42 - Hook secreto
-09:15 - Thumbnails que convertem`}
-                </pre>
-              </div>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-blue-400" />
+              <h3 className="text-sm font-semibold text-white">
+                Seções Prontas
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {quickSections.map((section) => {
+                const Icon = section.icon;
+                const colorClass = `text-${section.color}-400`;
+                const bgClass = `bg-${section.color}-500/10 border-${section.color}-500/20`;
 
-              <div
-                className="bg-gray-700/50 rounded-2xl p-6 cursor-pointer hover:bg-gray-700 transition-all"
-                onClick={() =>
-                  handleCopy(
-                    "#YouTube2025 #HackingÉtico #CrescernoYouTube #AlgoritmoYouTube #Cibersegurança",
-                    "hashtags"
-                  )
-                }
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <Hash className="w-7 h-7 text-purple-400" />
-                  {copiedSection === "hashtags" && (
-                    <CheckCircle className="w-6 h-6 text-emerald-400" />
-                  )}
-                </div>
-                <p className="text-purple-300 font-bold mb-2">
-                  Hashtags Otimizadas
-                </p>
-                <p className="text-gray-300">
-                  #YouTube2025 #HackingÉtico #CrescernoYouTube #AlgoritmoYouTube
-                  #Cibersegurança
-                </p>
-              </div>
+                return (
+                  <div
+                    key={section.key}
+                    className={`${bgClass} border rounded-lg p-3 cursor-pointer hover:opacity-90 transition-opacity`}
+                    onClick={() => handleCopy(section.content, section.key)}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Icon className={`w-4 h-4 ${colorClass}`} />
+                        <p className={`text-xs font-semibold ${colorClass}`}>
+                          {section.title}
+                        </p>
+                      </div>
+                      {copiedSection === section.key ? (
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Clipboard className="w-3.5 h-3.5 text-gray-400" />
+                      )}
+                    </div>
+                    <pre className="text-gray-300 text-xs whitespace-pre-wrap font-sans">
+                      {section.content}
+                    </pre>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </>
-      )}
-
-      {/* Placeholder inicial */}
-      {!userDescription && (
-        <div className="text-center py-20">
-          <p className="text-gray-400 text-2xl">
-            Cole a descrição do seu vídeo acima para ativar o diagnóstico da IA
+      ) : (
+        /* Estado vazio */
+        <div className="text-center py-10 border-2 border-dashed border-gray-600 rounded-lg">
+          <div className="w-12 h-12 rounded-full bg-gray-700/50 flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-6 h-6 text-gray-500" />
+          </div>
+          <p className="text-gray-400 text-sm">
+            Cole uma descrição para análise da IA
+          </p>
+          <p className="text-gray-500 text-xs mt-1">
+            Receba sugestões para aumentar engajamento em +85%
           </p>
         </div>
       )}

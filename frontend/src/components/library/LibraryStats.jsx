@@ -9,19 +9,19 @@ import {
 
 const stats = [
   {
-    label: "Total de Conteúdos",
+    label: "Conteúdos",
     value: "428",
     icon: PlayCircle,
     gradient: "from-purple-500 to-pink-500",
   },
   {
-    label: "Visualizações Totais",
+    label: "Visualizações",
     value: "8.5M",
     icon: Eye,
     gradient: "from-cyan-500 to-blue-500",
   },
   {
-    label: "Likes Acumulados",
+    label: "Likes",
     value: "485K",
     icon: ThumbsUp,
     gradient: "from-emerald-500 to-teal-500",
@@ -33,7 +33,7 @@ const stats = [
     gradient: "from-orange-500 to-red-500",
   },
   {
-    label: "Crescimento Médio",
+    label: "Crescimento",
     value: "+28%",
     icon: TrendingUp,
     gradient: "from-green-500 to-emerald-500",
@@ -59,7 +59,7 @@ export default function LibraryStats() {
             </div>
 
             {/* Valor principal */}
-            <p className="text-5xl lg:text-6xl font-bold text-white mb-4">
+            <p className="text-3xl lg:text-4xl font-bold text-white mb-4">
               {stat.value}
             </p>
 
