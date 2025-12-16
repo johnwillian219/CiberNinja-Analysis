@@ -10,5 +10,5 @@ export default defineConfig({
       "@icons": path.resolve(__dirname, "./src/icons"),
     },
   },
-  base: "/CiberNinja-Analysis",
+  base: "/CiberNinja-Analysis/",
 });
