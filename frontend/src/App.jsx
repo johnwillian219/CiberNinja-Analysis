@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { EventsProvider } from "./components/calendar/context/EventsContext"; // Importar o provider
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
@@ -24,7 +24,7 @@ import SchedulingPage from "./pages/SchedulingPage";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       {/* Envolve todas as rotas com o EventsProvider */}
       <EventsProvider>
         <Routes>
@@ -65,6 +65,6 @@ export default function App() {
           <Route path="/scheduling" element={<SchedulingPage />} />
         </Routes>
       </EventsProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
