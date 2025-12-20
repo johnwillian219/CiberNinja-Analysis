@@ -10,24 +10,70 @@ import {
   FileText,
   Sparkles,
   Check,
+  ChevronRight,
+  Video,
+  Zap,
+  Radio,
+  FileImage,
+  Globe,
 } from "lucide-react";
 import { useEvents } from "../context/EventsContext";
 import { useState, useCallback, useEffect, useRef } from "react";
 
 const platforms = [
-  { name: "YouTube", icon: Youtube, color: "from-red-500 to-pink-500" },
-  { name: "TikTok", icon: Music, color: "from-pink-500 to-black" },
+  {
+    name: "YouTube",
+    icon: Youtube,
+    color: "bg-red-500",
+    label: "YT",
+    description: "Vídeos longos",
+  },
+  {
+    name: "TikTok",
+    icon: Music,
+    color: "bg-pink-500",
+    label: "TT",
+    description: "Shorts",
+  },
   {
     name: "Instagram",
     icon: Instagram,
-    color: "from-purple-500 to-orange-500",
+    color: "bg-purple-500",
+    label: "IG",
+    description: "Reels e Posts",
   },
-  { name: "Facebook", icon: Facebook, color: "from-blue-500 to-cyan-500" },
+  {
+    name: "Facebook",
+    icon: Facebook,
+    color: "bg-blue-500",
+    label: "FB",
+    description: "Posts e Lives",
+  },
 ];
 
-const types = ["Vídeo", "Short/Reel", "Live", "Post"];
+const types = [
+  {
+    label: "Vídeo",
+    icon: Video,
+    description: "Vídeo tradicional",
+  },
+  {
+    label: "Short/Reel",
+    icon: Zap,
+    description: "Vídeo curto",
+  },
+  {
+    label: "Live",
+    icon: Radio,
+    description: "Transmissão ao vivo",
+  },
+  {
+    label: "Post",
+    icon: FileImage,
+    description: "Imagem ou texto",
+  },
+];
 
-// Mapeamento de tipo para key
 const typeToKey = {
   Vídeo: "video",
   "Short/Reel": "short",
@@ -38,10 +84,10 @@ const typeToKey = {
 export default function SchedulingForm({ onSuccess, onFormChange, formData }) {
   const { addEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
   const hasSubmittedRef = useRef(false);
   const formRef = useRef(null);
 
-  // Se formData não for fornecido, use valores padrão
   const data = formData || {
     platform: "YouTube",
     type: "Vídeo",
@@ -55,11 +101,7 @@ export default function SchedulingForm({ onSuccess, onFormChange, formData }) {
   const handleChange = useCallback(
     (field, value) => {
       const updatedData = { ...data, [field]: value };
-
-      // Notifica o componente pai sobre a mudança
-      if (onFormChange) {
-        onFormChange(updatedData);
-      }
+      if (onFormChange) onFormChange(updatedData);
     },
     [data, onFormChange]
   );
@@ -67,34 +109,17 @@ export default function SchedulingForm({ onSuccess, onFormChange, formData }) {
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
+      if (hasSubmittedRef.current || isSubmitting) return;
 
-      console.log("📝 Form submit iniciado");
-
-      // Prevenir múltiplos submissions
-      if (hasSubmittedRef.current) {
-        console.warn("⚠️ Form já submetido, ignorando...");
-        return;
-      }
-
-      if (isSubmitting) {
-        console.warn("⚠️ Já está submetendo, ignorando...");
-        return;
-      }
-
-      // Validação
       if (!data.title || !data.date || !data.time) {
-        alert("Por favor, preencha título, data e horário!");
+        alert("Preencha título, data e horário!");
         return;
       }
 
-      // Marcar como submetido
       hasSubmittedRef.current = true;
       setIsSubmitting(true);
 
-      console.log("🚀 Preparando dados do evento...");
-
       try {
-        // Preparar dados
         const eventData = {
           platform: data.platform,
           type: typeToKey[data.type] || "video",
@@ -106,260 +131,457 @@ export default function SchedulingForm({ onSuccess, onFormChange, formData }) {
           isBestTime: data.isBestTime || false,
         };
 
-        console.log("📋 EventData preparado:", eventData);
-
-        // Adicionar ao contexto
         const newEvent = addEvent(eventData);
-
-        if (newEvent) {
-          console.log("✅ Evento adicionado com sucesso:", newEvent);
-
-          // Chamar callback de sucesso com delay para garantir
-          if (onSuccess) {
-            setTimeout(() => {
-              console.log("🎉 Chamando onSuccess...");
-              onSuccess(eventData);
-            }, 100);
-          }
-        } else {
-          console.warn("❌ Evento não foi adicionado (possível duplicado)");
-          alert("Este evento já foi agendado anteriormente.");
+        if (newEvent && onSuccess) {
+          setTimeout(() => onSuccess(eventData), 100);
+        } else if (!newEvent) {
+          alert("Este evento já foi agendado.");
         }
       } catch (error) {
-        console.error("💥 Erro:", error);
-        alert("Erro ao agendar conteúdo. Tente novamente.");
-        hasSubmittedRef.current = false; // Resetar em caso de erro
+        alert("Erro ao agendar. Tente novamente.");
+        hasSubmittedRef.current = false;
       } finally {
-        // Resetar estado após 2 segundos
         setTimeout(() => {
           setIsSubmitting(false);
           hasSubmittedRef.current = false;
-          console.log("🏁 Estado do formulário resetado");
         }, 2000);
       }
     },
     [data, isSubmitting, addEvent, onSuccess]
   );
 
-  // Prevenir múltiplos event listeners
   useEffect(() => {
     const form = formRef.current;
     if (!form) return;
-
-    const handleSubmitInternal = (e) => {
-      console.log("🔗 Event listener de submit acionado");
-      handleSubmit(e);
-    };
-
+    const handleSubmitInternal = (e) => handleSubmit(e);
     form.addEventListener("submit", handleSubmitInternal);
-
-    return () => {
-      form.removeEventListener("submit", handleSubmitInternal);
-    };
+    return () => form.removeEventListener("submit", handleSubmitInternal);
   }, [handleSubmit]);
 
   const selectedPlatform = platforms.find((p) => p.name === data.platform);
-  const Icon = selectedPlatform?.icon || Youtube;
+  const selectedType = types.find((t) => t.label === data.type);
+
+  const steps = ["Plataforma", "Tipo", "Detalhes", "Agendamento"];
+  const stepIcons = [Globe, Type, FileText, Clock];
+  const StepIcon = stepIcons[activeStep];
 
   return (
     <form
       ref={formRef}
-      className="space-y-6"
-      onSubmit={(e) => {
-        // Prevenir comportamento padrão adicional
-        e.preventDefault();
-      }}
+      className="space-y-4"
+      onSubmit={(e) => e.preventDefault()}
     >
-      {/* Cabeçalho com plataforma selecionada */}
-      <div className="flex items-center gap-4 mb-6">
-        <div
-          className={`w-16 h-16 rounded-xl bg-gradient-to-br ${selectedPlatform.color} flex items-center justify-center shadow-lg`}
-        >
-          <Icon className="w-8 h-8 text-white" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-white">Novo Conteúdo</h2>
-          <p className="text-gray-300 text-base">{data.platform}</p>
-        </div>
-      </div>
-
-      {/* Plataforma */}
-      <div>
-        <label className="flex items-center gap-3 text-gray-300 text-sm font-medium mb-3">
-          <div className="w-8 h-8 rounded-lg bg-gray-700/50 flex items-center justify-center">
-            <Icon className="w-4 h-4 text-gray-400" />
+      {/* Header com indicador visual */}
+      <div className="bg-gray-800/50 rounded-xl p-3 mb-2">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <StepIcon className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">
+                {steps[activeStep]}
+              </h2>
+              <p className="text-xs text-gray-400">
+                Passo {activeStep + 1} de {steps.length}
+              </p>
+            </div>
           </div>
-          Plataforma
-        </label>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {platforms.map((p) => {
-            const PIcon = p.icon;
-            return (
-              <button
-                type="button"
-                key={p.name}
-                onClick={() => handleChange("platform", p.name)}
-                className={`p-3 rounded-xl border transition-all flex flex-col items-center gap-2 min-h-[90px] justify-center ${
-                  data.platform === p.name
-                    ? `border-purple-500 bg-gradient-to-br ${p.color} text-white shadow-md`
-                    : "border-gray-600 bg-gray-700/50 text-gray-300 hover:border-gray-500"
-                }`}
-              >
-                <PIcon className="w-6 h-6" />
-                <span className="font-medium text-sm text-center line-clamp-2 px-1">
-                  {p.name}
-                </span>
-              </button>
-            );
-          })}
+
+          {/* Indicador de progresso circular */}
+          <div className="relative w-10 h-10">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xs font-bold text-white">
+                {activeStep + 1}
+              </span>
+            </div>
+            <svg className="w-10 h-10 transform -rotate-90">
+              <circle
+                cx="20"
+                cy="20"
+                r="9"
+                fill="none"
+                stroke="#374151"
+                strokeWidth="2"
+              />
+              <circle
+                cx="20"
+                cy="20"
+                r="9"
+                fill="none"
+                stroke="#8B5CF6"
+                strokeWidth="2"
+                strokeDasharray={`${
+                  ((activeStep + 1) / steps.length) * 56.5
+                } 56.5`}
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* Indicador visual da seleção atual */}
+        <div className="flex items-center gap-2 text-xs text-gray-300">
+          <div className={`w-2 h-2 rounded-full ${selectedPlatform?.color}`} />
+          <span>{selectedPlatform?.name}</span>
+          <span className="text-gray-500">•</span>
+          <span>{selectedType?.label}</span>
         </div>
       </div>
 
-      {/* Tipo de Conteúdo */}
-      <div>
-        <label className="flex items-center gap-3 text-gray-300 text-sm font-medium mb-3">
-          <Type className="w-4 h-4 text-gray-400" />
-          Tipo de Conteúdo
-        </label>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {types.map((t) => (
-            <button
-              type="button"
-              key={t}
-              onClick={() => handleChange("type", t)}
-              className={`py-3 px-2 rounded-xl border transition-all font-medium text-sm text-center line-clamp-2 min-h-[60px] flex items-center justify-center ${
-                data.type === t
-                  ? "border-purple-500 bg-purple-500/20 text-purple-300 shadow-md"
-                  : "border-gray-600 bg-gray-700/50 text-gray-300 hover:border-gray-500"
+      {/* Conteúdo por etapa */}
+      <div className="space-y-4">
+        {/* Etapa 1: Plataforma */}
+        {activeStep === 0 && (
+          <div className="animate-fadeIn">
+            <div className="mb-3">
+              <p className="text-sm text-gray-300 mb-2">
+                Onde você vai postar?
+              </p>
+              <p className="text-xs text-gray-400">Selecione a plataforma:</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {platforms.map((p) => {
+                const PIcon = p.icon;
+                return (
+                  <button
+                    type="button"
+                    key={p.name}
+                    onClick={() => {
+                      handleChange("platform", p.name);
+                      setActiveStep(1);
+                    }}
+                    className={`p-3 rounded-xl border transition-all text-left group ${
+                      data.platform === p.name
+                        ? `${p.color} border-transparent text-white shadow-md`
+                        : "border-gray-700 bg-gray-800/50 text-gray-300 hover:border-gray-600 hover:bg-gray-800"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <div
+                        className={`w-8 h-8 rounded-lg ${p.color} flex items-center justify-center`}
+                      >
+                        <PIcon className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">{p.label}</p>
+                        <p className="text-xs opacity-80">{p.name}</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-300 mt-1">
+                      {p.description}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Etapa 2: Tipo de Conteúdo */}
+        {activeStep === 1 && (
+          <div className="animate-fadeIn">
+            <div className="mb-3">
+              <p className="text-sm text-gray-300 mb-2">
+                Qual tipo de conteúdo?
+              </p>
+              <p className="text-xs text-gray-400">Escolha o formato:</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {types.map((t) => {
+                const TIcon = t.icon;
+                return (
+                  <button
+                    type="button"
+                    key={t.label}
+                    onClick={() => {
+                      handleChange("type", t.label);
+                      setActiveStep(2);
+                    }}
+                    className={`p-3 rounded-xl border transition-all text-center group ${
+                      data.type === t.label
+                        ? "border-purple-500 bg-purple-500/10 text-purple-300"
+                        : "border-gray-700 bg-gray-800/50 text-gray-300 hover:border-gray-600 hover:bg-gray-800"
+                    }`}
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center mb-1.5 group-hover:bg-gray-700">
+                        <TIcon className="w-5 h-5" />
+                      </div>
+                      <p className="font-bold text-xs mb-0.5">{t.label}</p>
+                      <p className="text-[10px] text-gray-400">
+                        {t.description}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Etapa 3: Detalhes do Conteúdo */}
+        {activeStep === 2 && (
+          <div className="animate-fadeIn space-y-3">
+            <div>
+              <p className="text-sm text-gray-300 mb-2">Detalhes do conteúdo</p>
+              <p className="text-xs text-gray-400 mb-3">
+                Preencha as informações:
+              </p>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">
+                    Título obrigatório
+                  </label>
+                  <input
+                    type="text"
+                    value={data.title || ""}
+                    onChange={(e) => handleChange("title", e.target.value)}
+                    placeholder="Ex: Tutorial de segurança digital"
+                    className="w-full px-3 py-2.5 bg-gray-800/70 border border-gray-700 rounded-lg text-white text-sm focus:border-purple-500 focus:outline-none transition-all placeholder-gray-500"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">
+                    Descrição (opcional)
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      value={data.description || ""}
+                      onChange={(e) =>
+                        handleChange("description", e.target.value)
+                      }
+                      rows={3}
+                      placeholder="Adicione detalhes, hashtags, links..."
+                      className="w-full px-3 py-2.5 bg-gray-800/70 border border-gray-700 rounded-lg text-white text-sm resize-none focus:border-purple-500 focus:outline-none transition-all placeholder-gray-500 pr-10"
+                      disabled={isSubmitting}
+                    />
+                    <FileText className="absolute right-3 top-2.5 w-4 h-4 text-gray-500" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Etapa 4: Data e Hora */}
+        {activeStep === 3 && (
+          <div className="animate-fadeIn space-y-3">
+            <div>
+              <p className="text-sm text-gray-300 mb-2">Quando postar?</p>
+              <p className="text-xs text-gray-400 mb-3">
+                Defina data e horário:
+              </p>
+
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">
+                      Data
+                    </label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="date"
+                        value={data.date || ""}
+                        onChange={(e) => handleChange("date", e.target.value)}
+                        className="w-full pl-10 pr-3 py-2.5 bg-gray-800/70 border border-gray-700 rounded-lg text-white text-sm focus:border-purple-500 focus:outline-none transition-all"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">
+                      Horário
+                    </label>
+                    <div className="relative">
+                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="time"
+                        value={data.time || ""}
+                        onChange={(e) => handleChange("time", e.target.value)}
+                        className="w-full pl-10 pr-3 py-2.5 bg-gray-800/70 border border-gray-700 rounded-lg text-white text-sm focus:border-purple-500 focus:outline-none transition-all"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sugestão da IA */}
+                <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg p-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={data.isBestTime || true}
+                        onChange={(e) =>
+                          handleChange("isBestTime", e.target.checked)
+                        }
+                        className="sr-only"
+                        disabled={isSubmitting}
+                      />
+                      <div
+                        className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
+                          data.isBestTime
+                            ? "border-yellow-500 bg-yellow-500"
+                            : "border-gray-600 bg-gray-800"
+                        }`}
+                      >
+                        {data.isBestTime && (
+                          <Sparkles className="w-3 h-3 text-white" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+                        <span className="text-xs font-medium text-yellow-300">
+                          Horário sugerido pela IA
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-yellow-400/80">
+                        Baseado no histórico de engajamento
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Preview */}
+            {(data.title || data.date || data.time) && (
+              <div className="bg-gray-800/30 rounded-lg p-3 border border-gray-700/50">
+                <p className="text-xs text-gray-400 mb-1.5">
+                  Pré-visualização:
+                </p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-white truncate">
+                      {data.title || "Sem título"}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {data.time || "--:--"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded ${selectedPlatform?.color} text-white`}
+                    >
+                      {selectedPlatform?.label}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {selectedType?.label}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {data.date || "Sem data"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Navegação entre etapas */}
+      <div className="flex items-center justify-between pt-3 border-t border-gray-800">
+        <button
+          type="button"
+          onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
+          disabled={activeStep === 0}
+          className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
+            activeStep === 0
+              ? "text-gray-600 cursor-not-allowed"
+              : "text-gray-400 hover:text-white hover:bg-gray-800"
+          }`}
+        >
+          Voltar
+        </button>
+
+        <div className="flex items-center gap-1">
+          {steps.map((_, index) => (
+            <div
+              key={index}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${
+                index === activeStep
+                  ? "bg-purple-500"
+                  : index < activeStep
+                  ? "bg-purple-300"
+                  : "bg-gray-700"
               }`}
-            >
-              {t}
-            </button>
+            />
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (activeStep < steps.length - 1) {
+              setActiveStep((prev) => prev + 1);
+            }
+          }}
+          disabled={activeStep === steps.length - 1}
+          className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
+            activeStep === steps.length - 1
+              ? "text-gray-600 cursor-not-allowed"
+              : "text-gray-400 hover:text-white hover:bg-gray-800"
+          }`}
+        >
+          Próximo
+        </button>
       </div>
 
-      {/* Título */}
-      <div>
-        <label className="flex items-center gap-3 text-gray-300 text-sm font-medium mb-2">
-          <Type className="w-4 h-4 text-gray-400" />
-          Título do Post
-        </label>
-        <input
-          type="text"
-          value={data.title || ""}
-          onChange={(e) => handleChange("title", e.target.value)}
-          placeholder="Ex: Como proteger sua senha em 2025"
-          className="w-full px-4 py-3 bg-gray-700/70 border border-gray-600 rounded-xl text-white text-base focus:border-purple-500 focus:outline-none transition-all placeholder-gray-400"
-          required
-          disabled={isSubmitting}
-        />
-      </div>
-
-      {/* Descrição */}
-      <div>
-        <label className="flex items-center gap-3 text-gray-300 text-sm font-medium mb-2">
-          <FileText className="w-4 h-4 text-gray-400" />
-          Descrição (opcional)
-        </label>
-        <textarea
-          value={data.description || ""}
-          onChange={(e) => handleChange("description", e.target.value)}
-          rows={4}
-          placeholder="Adicione detalhes, timestamps, hashtags..."
-          className="w-full px-4 py-3 bg-gray-700/70 border border-gray-600 rounded-xl text-white text-sm resize-none focus:border-purple-500 focus:outline-none transition-all placeholder-gray-400"
-          disabled={isSubmitting}
-        />
-      </div>
-
-      {/* Data e Hora */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="flex items-center gap-3 text-gray-300 text-sm font-medium mb-2">
-            <Calendar className="w-4 h-4 text-gray-400" />
-            Data
-          </label>
-          <input
-            type="date"
-            value={data.date || ""}
-            onChange={(e) => handleChange("date", e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700/70 border border-gray-600 rounded-xl text-white text-base focus:border-purple-500 focus:outline-none transition-all"
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-
-        <div>
-          <label className="flex items-center gap-3 text-gray-300 text-sm font-medium mb-2">
-            <Clock className="w-4 h-4 text-gray-400" />
-            Horário
-          </label>
-          <input
-            type="time"
-            value={data.time || ""}
-            onChange={(e) => handleChange("time", e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700/70 border border-gray-600 rounded-xl text-white text-base focus:border-purple-500 focus:outline-none transition-all"
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-      </div>
-
-      {/* Melhor horário */}
-      <div className="pt-2">
-        <label className="flex items-center gap-3 text-gray-300 text-sm cursor-pointer">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              checked={data.isBestTime || true}
-              onChange={(e) => handleChange("isBestTime", e.target.checked)}
-              className="w-5 h-5 rounded border-gray-600 bg-gray-700 checked:bg-purple-500 focus:ring-1 focus:ring-purple-500"
-              disabled={isSubmitting}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-            <span className="text-sm">
-              Este é o melhor horário sugerido pela IA
-            </span>
-          </div>
-        </label>
-      </div>
-
-      {/* Botão de Agendar */}
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className={`w-full mt-8 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all text-lg flex items-center justify-center gap-3 ${
-          isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-        }`}
-        onClick={(e) => {
-          // Prevenir clique duplo
-          if (isSubmitting) {
-            e.preventDefault();
-            return;
-          }
-        }}
-      >
-        {isSubmitting ? (
-          <>
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Agendando...
-          </>
-        ) : (
-          <>
-            <Check className="w-6 h-6" />
-            Agendar Conteúdo
-          </>
-        )}
-      </button>
-
-      {/* Nota informativa */}
-      {isSubmitting && (
-        <p className="text-center text-gray-400 text-sm mt-4">
-          Aguarde enquanto processamos seu agendamento...
-        </p>
+      {/* Botão de Agendar (só aparece na última etapa) */}
+      {activeStep === 3 && (
+        <button
+          type="submit"
+          disabled={isSubmitting || !data.title || !data.date || !data.time}
+          className={`w-full mt-4 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold rounded-lg transition-all text-sm flex items-center justify-center gap-2 shadow-lg ${
+            isSubmitting || !data.title || !data.date || !data.time
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:shadow-purple-500/30 active:scale-[0.98]"
+          }`}
+          onClick={handleSubmit}
+        >
+          {isSubmitting ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Agendando...</span>
+            </>
+          ) : (
+            <>
+              <Check className="w-4 h-4" />
+              <span>Confirmar Agendamento</span>
+            </>
+          )}
+        </button>
       )}
+
+      {/* Adicionar animação CSS */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </form>
   );
 }

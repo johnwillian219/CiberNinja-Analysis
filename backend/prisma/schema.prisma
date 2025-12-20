@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================
+// Modelo User - Completo e profissional
+// ================================
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  password     String   // será encriptada com bcrypt no backend
+  fullName     String?
+  displayName  String?
+  username     String?  @unique
+  profession   String?
+  website      String?
+  location     String?
+  bio          String?
+  profilePhoto String?  // URL da foto (Cloudinary, Supabase Storage, etc)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relação: um usuário tem muitos eventos
+  events       Event[]
+
+  @@map("users")
+}
+
+// ================================
+// Modelo Event - Otimizado para calendário
+// ================================
+model Event {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  platform     String   // YouTube, TikTok, Instagram, Facebook
+  type         String   // video, short, reel, live, post
+  date         DateTime // data e hora do agendamento
+  isBestTime   Boolean  @default(false)
+  status       String   @default("scheduled") // scheduled, published, draft, cancelled
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relação: evento pertence a um usuário
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+
+  @@map("events")
+}

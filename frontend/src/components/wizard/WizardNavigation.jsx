@@ -1,4 +1,6 @@
-// src/components/compare/wizard/WizardNavigation.jsx
+// src/components/wizard/WizardNavigation.jsx
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+
 export default function WizardNavigation({
   currentStep,
   totalSteps,
@@ -6,29 +8,46 @@ export default function WizardNavigation({
   onNext,
 }) {
   return (
-    <div className="flex justify-between mt-16 max-w-4xl mx-auto">
+    <div className="flex justify-between items-center gap-3 sm:gap-4">
       <button
         onClick={onPrevious}
         disabled={currentStep === 0}
-        className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all ${
+        className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-all flex items-center justify-center gap-2 flex-1 ${
           currentStep === 0
-            ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-            : "bg-gray-700 text-white hover:bg-gray-600"
+            ? "bg-gray-700/50 text-gray-500 cursor-not-allowed"
+            : "bg-gray-700/70 text-white hover:bg-gray-600/70 active:scale-95 border border-gray-600/50"
         }`}
       >
-        ← Anterior
+        <ChevronLeft className="w-4 h-4" />
+        <span className="hidden sm:inline">Voltar</span>
       </button>
+
+      <div className="text-center px-3 py-1.5 bg-gray-800/50 rounded-lg border border-gray-700/50 min-w-[80px]">
+        <span className="text-gray-300 text-xs sm:text-sm">
+          {currentStep + 1} / {totalSteps}
+        </span>
+      </div>
 
       <button
         onClick={onNext}
         disabled={currentStep === totalSteps - 1}
-        className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all ${
+        className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-all flex items-center justify-center gap-2 flex-1 ${
           currentStep === totalSteps - 1
             ? "bg-emerald-600 text-white cursor-not-allowed"
-            : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/50"
+            : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/20 active:scale-95"
         }`}
       >
-        {currentStep === totalSteps - 1 ? "Concluído ✅" : "Próximo →"}
+        {currentStep === totalSteps - 1 ? (
+          <>
+            <Check className="w-4 h-4" />
+            <span className="hidden sm:inline">Concluir</span>
+          </>
+        ) : (
+          <>
+            <span className="hidden sm:inline">Próximo</span>
+            <ChevronRight className="w-4 h-4" />
+          </>
+        )}
       </button>
     </div>
   );

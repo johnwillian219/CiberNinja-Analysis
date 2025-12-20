@@ -13,6 +13,7 @@ import ProfileIcon from "@icons/ProfileIcon";
 import LogoutIcon from "@icons/LogoutIcon";
 import MonetizationIcon from "@icons/MonetizationIcon";
 import CalendarIcon from "@icons/CalendarIcon";
+import Avatar from "/avatar.png";
 
 const menuItems = [
   {
@@ -121,17 +122,17 @@ const bottomItems = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }) {
   const location = useLocation();
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-64 bg-gray-900 border-r border-gray-800 flex flex-col z-40">
-      {/* Logo */}
+    <aside className="w-64 h-full bg-gray-900 border-r border-gray-800 flex flex-col">
+      {/* Logo - EXATAMENTE como estava */}
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center gap-3">
           <div className="relative">
             <img
-              src="/avatar.png"
+              src={Avatar}
               alt="CiberNinja"
               className="w-11 h-11 rounded-full object-cover z-10"
             />
@@ -147,7 +148,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Menu Principal */}
+      {/* Menu Principal - EXATAMENTE como estava */}
       <nav className="flex-1 px-4 py-3 space-y-1 overflow-y-auto">
         {menuItems.map(({ Icon, label, path, color, hoverColor, activeBg }) => {
           const isActive = location.pathname.startsWith(path);
@@ -156,6 +157,7 @@ export default function Sidebar() {
             <Link
               key={path}
               to={path}
+              onClick={onClose}
               className={`
                 group relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
                 ${
@@ -165,14 +167,11 @@ export default function Sidebar() {
                 }
               `}
             >
-              {/* Ícone: cor certa quando ativo ou hover */}
               <Icon
                 className={`w-5 h-5 transition-colors duration-300 ${
                   isActive ? color : `text-gray-500 ${hoverColor}`
                 }`}
               />
-
-              {/* Texto: cor certa quando ativo ou hover */}
               <span
                 className={`transition-colors duration-300 ${
                   isActive ? color : hoverColor
@@ -185,7 +184,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Menu Inferior */}
+      {/* Menu Inferior - EXATAMENTE como estava */}
       <div className="p-4 border-t border-gray-800 space-y-1">
         {bottomItems.map(({ Icon, label, path, color, hoverColor }) => {
           const isActive = location.pathname === path;
@@ -194,6 +193,7 @@ export default function Sidebar() {
             <Link
               key={path}
               to={path}
+              onClick={onClose}
               className={`
                 group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
                 ${

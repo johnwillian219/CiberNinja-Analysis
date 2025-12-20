@@ -1,55 +1,59 @@
 // src/components/tiktok/TikTokInsights.jsx
-import { TrendingUp, AlertTriangle, Zap, Clock } from "lucide-react";
+import { TrendingUp, AlertTriangle, Zap } from "lucide-react";
 
 const insights = [
   {
     type: "success",
     icon: TrendingUp,
-    text: "Vídeos com música trending têm 3.2x mais shares",
-  },
-  {
-    type: "success",
-    icon: Zap,
-    text: "Shorts postados às 20h têm 48% mais visualizações",
+    text: "Vídeos com som trending têm 3.2x mais alcance",
   },
   {
     type: "info",
-    icon: Clock,
-    text: "Duração ideal: vídeos de 15-21s têm maior retenção",
+    icon: Zap,
+    text: "Melhor horário: 21h (alcance 45% acima da média)",
   },
   {
     type: "warning",
     icon: AlertTriangle,
-    text: "Vídeos com texto na tela têm 28% menos tempo de visualização",
+    text: "Vídeos >60s com retenção <40% nos primeiros 10s",
+  },
+  {
+    type: "success",
+    icon: TrendingUp,
+    text: "Hook nos primeiros 3s aumenta views em 2.5x",
   },
 ];
 
 export default function TikTokInsights() {
   return (
-    <div className="mb-12">
-      <h2 className="text-2xl lg:text-3xl font-bold text-white mb-8">
+    <div className="mb-8 sm:mb-10 lg:mb-12">
+      <h2 className="text-xl sm:text-2xl font-bold text-white mb-6 sm:mb-8 text-center lg:text-left">
         Insights da IA para TikTok
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {insights.map((insight, i) => {
           const Icon = insight.icon;
           return (
             <div
               key={i}
-              className={`group bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 hover:border-pink-500/60 transition-all hover:shadow-2xl hover:shadow-pink-500/20`}
+              className={`group bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-${
+                insight.type === "warning" ? "yellow" : "pink"
+              }-500/50 transition-all hover:shadow-xl lg:hover:shadow-2xl hover:shadow-${
+                insight.type === "warning" ? "yellow" : "pink"
+              }-500/20`}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-3 sm:gap-4">
                 <div
-                  className={`p-3 rounded-xl ${
+                  className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${
                     insight.type === "success"
                       ? "bg-emerald-500/20"
                       : insight.type === "warning"
                       ? "bg-yellow-500/20"
                       : "bg-pink-500/20"
-                  }`}
+                  } flex-shrink-0`}
                 >
                   <Icon
-                    className={`w-6 h-6 ${
+                    className={`w-5 h-5 sm:w-6 sm:h-6 ${
                       insight.type === "success"
                         ? "text-emerald-400"
                         : insight.type === "warning"
@@ -58,7 +62,7 @@ export default function TikTokInsights() {
                     }`}
                   />
                 </div>
-                <p className="text-white text-lg leading-relaxed">
+                <p className="text-white text-sm sm:text-base lg:text-lg leading-relaxed">
                   {insight.text}
                 </p>
               </div>

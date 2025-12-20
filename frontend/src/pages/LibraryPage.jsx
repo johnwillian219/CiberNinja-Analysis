@@ -8,7 +8,7 @@ import LibraryContent from "../components/library/contentGrid/LibraryContent";
 export default function LibraryPage() {
   return (
     <DashboardLayout>
-      <div className="p-6 lg:p-10 min-h-screen">
+      <div className="pb-16 lg:p-10 min-h-screen">
         {/* Cabeçalho */}
         <LibraryHeader />
 

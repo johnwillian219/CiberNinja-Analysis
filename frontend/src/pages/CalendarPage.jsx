@@ -8,7 +8,7 @@ import CalendarNavigation from "../components/calendar/CalendarNavigation";
 import CalendarGrid from "../components/calendar/CalendarGrid/CalendarGrid";
 import SchedulingModal from "../components/Modal/SchedulingModal";
 
-import { EventsProvider } from "../components/calendar/context/EventsContext"; // ← import do Provider
+import { EventsProvider } from "../components/calendar/context/EventsContext";
 
 export default function CalendarPage() {
   const [currentView, setCurrentView] = useState("month");
@@ -34,8 +34,7 @@ export default function CalendarPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 lg:p-10 min-h-screen">
-        {/* Provider envolvendo todo o conteúdo do calendário */}
+      <div className="p-4 md:p-6 lg:p-10 min-h-screen">
         <EventsProvider>
           <CalendarHeader
             selectedPlatform={selectedPlatform}
@@ -50,7 +49,7 @@ export default function CalendarPage() {
               onNextMonth={handleNextMonth}
             />
 
-            <div className="my-12">
+            <div className="my-8 lg:my-12">
               <CalendarViewSwitcher
                 activeView={currentView}
                 onViewChange={setCurrentView}
@@ -65,7 +64,6 @@ export default function CalendarPage() {
           </div>
         </EventsProvider>
 
-        {/* Modal de agendamento fora do Provider (não precisa de eventos) */}
         <SchedulingModal
           isOpen={isSchedulingOpen}
           onClose={() => setIsSchedulingOpen(false)}

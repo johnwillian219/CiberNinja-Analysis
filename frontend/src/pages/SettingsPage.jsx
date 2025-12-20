@@ -14,6 +14,7 @@ import {
   Save,
   X,
   AlertTriangle,
+  Menu,
 } from "lucide-react";
 import ConfirmationModal from "../components/Modal/ConfirmationModal";
 
@@ -69,6 +70,7 @@ export default function SettingsPage() {
 
   const [activeSection, setActiveSection] = useState("general");
   const [hasChanges, setHasChanges] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Monitorar mudanças
   useEffect(() => {
@@ -129,74 +131,80 @@ export default function SettingsPage() {
     switch (activeSection) {
       case "general":
         return (
-          <div className="space-y-8">
-            <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-8">
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                <User className="w-6 h-6 text-cyan-400" />
+          <div className="space-y-6 md:space-y-8 pb-16">
+            <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl md:rounded-2xl p-4 md:p-8">
+              <h3 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                <User className="w-5 h-5 md:w-6 md:h-6 text-cyan-400" />
                 Informações da Conta
               </h3>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4 md:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">
+                    <label className="block text-gray-400 text-xs md:text-sm mb-1 md:mb-2">
                       Nome
                     </label>
                     <input
                       type="text"
                       defaultValue={user.name}
-                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition-all"
+                      className="w-full px-3 md:px-4 py-2 md:py-3 bg-gray-700/50 border border-gray-600 rounded-lg md:rounded-xl text-white focus:border-cyan-500 focus:outline-none transition-all text-sm md:text-base"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">
+                    <label className="block text-gray-400 text-xs md:text-sm mb-1 md:mb-2">
                       E-mail
                     </label>
                     <input
                       type="email"
                       defaultValue={user.email}
-                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition-all"
+                      className="w-full px-3 md:px-4 py-2 md:py-3 bg-gray-700/50 border border-gray-600 rounded-lg md:rounded-xl text-white focus:border-cyan-500 focus:outline-none transition-all text-sm md:text-base"
                     />
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-gray-700/50">
-                  <h4 className="text-lg font-bold text-white mb-4">
+                <div className="pt-4 md:pt-6 border-t border-gray-700/50">
+                  <h4 className="text-base md:text-lg font-bold text-white mb-3 md:mb-4">
                     Informações da Conta
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-gray-700/30 rounded-xl">
-                      <p className="text-gray-400 text-sm">Conta criada</p>
-                      <p className="text-white font-medium">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    <div className="p-3 md:p-4 bg-gray-700/30 rounded-lg md:rounded-xl">
+                      <p className="text-gray-400 text-xs md:text-sm">
+                        Conta criada
+                      </p>
+                      <p className="text-white font-medium text-sm md:text-base">
                         {user.accountCreated}
                       </p>
                     </div>
-                    <div className="p-4 bg-gray-700/30 rounded-xl">
-                      <p className="text-gray-400 text-sm">Último acesso</p>
-                      <p className="text-white font-medium">{user.lastLogin}</p>
+                    <div className="p-3 md:p-4 bg-gray-700/30 rounded-lg md:rounded-xl">
+                      <p className="text-gray-400 text-xs md:text-sm">
+                        Último acesso
+                      </p>
+                      <p className="text-white font-medium text-sm md:text-base">
+                        {user.lastLogin}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-8">
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                <Download className="w-6 h-6 text-emerald-400" />
+            <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl md:rounded-2xl p-4 md:p-8">
+              <h3 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                <Download className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />
                 Exportar Dados
               </h3>
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-400 text-sm md:text-base mb-4 md:mb-6">
                 Faça o download de todos os seus dados em formato JSON ou CSV.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                 <button
                   onClick={handleExportData}
-                  className="px-6 py-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-400 font-medium hover:bg-emerald-500/30 hover:border-emerald-400 transition-all"
+                  className="px-4 py-2 md:px-6 md:py-3 bg-emerald-500/20 border border-emerald-500/50 rounded-lg md:rounded-xl text-emerald-400 font-medium hover:bg-emerald-500/30 hover:border-emerald-400 transition-all text-sm md:text-base"
                 >
                   Exportar como JSON
                 </button>
                 <button
                   onClick={handleExportData}
-                  className="px-6 py-3 bg-cyan-500/20 border border-cyan-500/50 rounded-xl text-cyan-400 font-medium hover:bg-cyan-500/30 hover:border-cyan-400 transition-all"
+                  className="px-4 py-2 md:px-6 md:py-3 bg-cyan-500/20 border border-cyan-500/50 rounded-lg md:rounded-xl text-cyan-400 font-medium hover:bg-cyan-500/30 hover:border-cyan-400 transition-all text-sm md:text-base"
                 >
                   Exportar como CSV
                 </button>
@@ -207,12 +215,12 @@ export default function SettingsPage() {
 
       case "notifications":
         return (
-          <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-8">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-              <Bell className="w-6 h-6 text-yellow-400" />
+          <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl md:rounded-2xl p-4 md:p-8">
+            <h3 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+              <Bell className="w-5 h-5 md:w-6 md:h-6 text-yellow-400" />
               Preferências de Notificação
             </h3>
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {[
                 {
                   label: "Notificações por e-mail",
@@ -229,7 +237,6 @@ export default function SettingsPage() {
                   key: "alerts",
                   desc: "Notificações sobre problemas críticos",
                 },
-
                 {
                   label: "Alertas de segurança",
                   key: "securityAlerts",
@@ -238,11 +245,15 @@ export default function SettingsPage() {
               ].map((item) => (
                 <div
                   key={item.key}
-                  className="flex items-center justify-between p-4 bg-gray-700/30 rounded-xl border border-gray-600/50 hover:border-gray-500/50 transition-all"
+                  className="flex items-center justify-between p-3 md:p-4 bg-gray-700/30 rounded-lg md:rounded-xl border border-gray-600/50 hover:border-gray-500/50 transition-all"
                 >
-                  <div>
-                    <p className="text-white font-medium">{item.label}</p>
-                    <p className="text-gray-400 text-sm">{item.desc}</p>
+                  <div className="flex-1 min-w-0 mr-3">
+                    <p className="text-white font-medium text-sm md:text-base truncate">
+                      {item.label}
+                    </p>
+                    <p className="text-gray-400 text-xs md:text-sm truncate">
+                      {item.desc}
+                    </p>
                   </div>
                   <button
                     onClick={() =>
@@ -251,15 +262,17 @@ export default function SettingsPage() {
                         [item.key]: !notifications[item.key],
                       })
                     }
-                    className={`relative w-14 h-8 rounded-full transition-all duration-300 ${
+                    className={`relative w-12 h-7 md:w-14 md:h-8 rounded-full transition-all duration-300 flex-shrink-0 ${
                       notifications[item.key]
                         ? "bg-emerald-500 hover:bg-emerald-600"
                         : "bg-gray-700 hover:bg-gray-600"
                     }`}
                   >
                     <div
-                      className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-all duration-300 ${
-                        notifications[item.key] ? "translate-x-6" : ""
+                      className={`absolute top-1 left-1 w-5 h-5 md:w-6 md:h-6 bg-white rounded-full transition-all duration-300 ${
+                        notifications[item.key]
+                          ? "translate-x-5 md:translate-x-6"
+                          : ""
                       }`}
                     />
                   </button>
@@ -271,13 +284,13 @@ export default function SettingsPage() {
 
       case "security":
         return (
-          <div className="space-y-8">
-            <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-8">
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                <Key className="w-6 h-6 text-purple-400" />
+          <div className="space-y-6 md:space-y-8">
+            <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl md:rounded-2xl p-4 md:p-8">
+              <h3 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                <Key className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
                 Alterar Senha
               </h3>
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {[
                   {
                     label: "Senha Atual",
@@ -299,7 +312,7 @@ export default function SettingsPage() {
                   },
                 ].map((field) => (
                   <div key={field.key}>
-                    <label className="block text-gray-400 text-sm mb-2">
+                    <label className="block text-gray-400 text-xs md:text-sm mb-1 md:mb-2">
                       {field.label}
                     </label>
                     <div className="relative">
@@ -317,7 +330,7 @@ export default function SettingsPage() {
                           }))
                         }
                         placeholder={field.placeholder}
-                        className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition-all pr-12"
+                        className="w-full px-3 md:px-4 py-2 md:py-3 bg-gray-700/50 border border-gray-600 rounded-lg md:rounded-xl text-white focus:border-cyan-500 focus:outline-none transition-all pr-10 md:pr-12 text-sm md:text-base"
                       />
                       <button
                         type="button"
@@ -325,16 +338,16 @@ export default function SettingsPage() {
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
                       >
                         {showPasswords[field.key] ? (
-                          <EyeOff className="w-5 h-5" />
+                          <EyeOff className="w-4 h-4 md:w-5 md:h-5" />
                         ) : (
-                          <Eye className="w-5 h-5" />
+                          <Eye className="w-4 h-4 md:w-5 md:h-5" />
                         )}
                       </button>
                     </div>
                   </div>
                 ))}
 
-                <div className="pt-6 border-t border-gray-700/50">
+                <div className="pt-4 md:pt-6 border-t border-gray-700/50">
                   <button
                     onClick={() => setIsPasswordModalOpen(true)}
                     disabled={
@@ -342,7 +355,7 @@ export default function SettingsPage() {
                       !passwordData.newPassword ||
                       !passwordData.confirmPassword
                     }
-                    className="px-6 py-3 bg-purple-500/20 border border-purple-500/50 rounded-xl text-purple-400 font-medium hover:bg-purple-500/30 hover:border-purple-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 md:px-6 md:py-3 bg-purple-500/20 border border-purple-500/50 rounded-lg md:rounded-xl text-purple-400 font-medium hover:bg-purple-500/30 hover:border-purple-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                   >
                     Alterar Senha
                   </button>
@@ -354,48 +367,48 @@ export default function SettingsPage() {
 
       case "danger":
         return (
-          <div className="bg-gray-800/50 backdrop-blur-lg border border-red-500/30 rounded-2xl p-8">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-              <AlertTriangle className="w-6 h-6 text-red-400" />
+          <div className="bg-gray-800/50 backdrop-blur-lg border border-red-500/30 rounded-xl md:rounded-2xl p-4 md:p-8">
+            <h3 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+              <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-400" />
               Zona de Risco
             </h3>
-            <div className="space-y-8">
-              <div className="p-6 bg-red-500/10 border border-red-500/30 rounded-xl">
-                <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Trash2 className="w-5 h-5" />
+            <div className="space-y-6 pb-16 md:space-y-8">
+              <div className="p-2 md:p-6 bg-red-500/10 border border-red-500/30 rounded-lg md:rounded-xl">
+                <h4 className="text-base md:text-lg font-bold text-white mb-3 md:mb-4 flex items-center gap-2">
+                  <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                   Eliminar Conta Permanentemente
                 </h4>
-                <p className="text-gray-300 mb-6">
+                <p className="text-gray-300 text-sm md:text-base mb-4 md:mb-6">
                   Ao eliminar a conta, todos os seus dados, conexões, histórico
                   de análises e configurações serão permanentemente apagados.
                   Esta ação não pode ser desfeita.
                 </p>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                   <button
                     onClick={handleDeleteAccount}
-                    className="px-6 py-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 font-medium hover:bg-red-500/30 hover:border-red-400 transition-all"
+                    className="px-4 py-2 md:px-6 md:py-3 bg-red-500/20 border border-red-500/50 rounded-lg md:rounded-xl text-red-400 font-medium hover:bg-red-500/30 hover:border-red-400 transition-all text-sm md:text-base"
                   >
                     Eliminar Conta
                   </button>
                   <button
                     onClick={handleExportData}
-                    className="px-6 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-gray-300 font-medium hover:border-gray-500 transition-all"
+                    className="px-4 py-2 md:px-6 md:py-3 bg-gray-700/50 border border-gray-600 rounded-lg md:rounded-xl text-gray-300 font-medium hover:border-gray-500 transition-all text-sm md:text-base"
                   >
                     Exportar Dados Primeiro
                   </button>
                 </div>
               </div>
 
-              <div className="p-6 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-                <h4 className="text-lg font-bold text-white mb-4">
+              <div className="p-2 md:p-6 bg-amber-500/10 border border-amber-500/30 rounded-lg md:rounded-xl">
+                <h4 className="text-base md:text-lg font-bold text-white mb-3 md:mb-4">
                   Desativar Conta Temporariamente
                 </h4>
-                <p className="text-gray-300 mb-6">
+                <p className="text-gray-300 text-sm md:text-base mb-4 md:mb-6">
                   Sua conta será ocultada mas seus dados serão preservados por
                   30 dias. Após este período, os dados serão eliminados
                   permanentemente.
                 </p>
-                <button className="px-6 py-3 bg-amber-500/20 border border-amber-500/50 rounded-xl text-amber-400 font-medium hover:bg-amber-500/30 hover:border-amber-400 transition-all">
+                <button className="px-4 py-2 md:px-6 md:py-3 bg-amber-500/20 border border-amber-500/50 rounded-lg md:rounded-xl text-amber-400 font-medium hover:bg-amber-500/30 hover:border-amber-400 transition-all text-sm md:text-base">
                   Desativar Conta
                 </button>
               </div>
@@ -410,52 +423,86 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-black p-4 md:p-6 lg:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-black p-3 md:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Cabeçalho */}
-          <div className="mb-12 text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent mb-4 animate-gradient">
+          <div className="mb-8 md:mb-12 text-center">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent mb-2 md:mb-4 animate-gradient">
               Configurações
             </h1>
-            <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">
-              Gerencie sua conta, preferências e segurança no CiberNinja
-              Analytics
+            <p className="text-gray-400 text-sm md:text-lg lg:text-xl max-w-2xl mx-auto px-2 md:px-0">
+              Gerencie sua conta e preferências
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Mobile: Botão para mostrar menu */}
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="lg:hidden w-full mb-4 bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl p-3 flex items-center justify-between text-white hover:border-cyan-500/50 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              {(() => {
+                const section = sections.find((s) => s.id === activeSection);
+                const Icon = section?.icon || Menu;
+                return (
+                  <>
+                    <Icon className="w-5 h-5 text-cyan-400" />
+                    <span className="font-medium">
+                      {section?.label || "Menu"}
+                    </span>
+                  </>
+                );
+              })()}
+            </div>
+            <Menu className="w-5 h-5 text-gray-400" />
+          </button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
             {/* Sidebar de Navegação */}
-            <div className="lg:col-span-1">
-              <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-6 sticky top-6">
-                <h3 className="text-lg font-bold text-white mb-6">
+            <div
+              className={`lg:col-span-1 ${
+                showMobileMenu ? "block" : "hidden lg:block"
+              }`}
+            >
+              <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl md:rounded-2xl p-4 md:p-6 sticky top-6">
+                <h3 className="text-base md:text-lg font-bold text-white mb-4 md:mb-6">
                   Configurações
                 </h3>
-                <nav className="space-y-2">
+                <nav className="space-y-1 md:space-y-2">
                   {sections.map((section) => {
                     const Icon = section.icon;
                     return (
                       <button
                         key={section.id}
-                        onClick={() => setActiveSection(section.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                        onClick={() => {
+                          setActiveSection(section.id);
+                          setShowMobileMenu(false);
+                        }}
+                        className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl text-left transition-all duration-300 ${
                           activeSection === section.id
                             ? "bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 border border-cyan-500/50 text-cyan-400"
                             : "text-gray-400 hover:text-white hover:bg-gray-700/30"
                         }`}
                       >
-                        <Icon className="w-5 h-5" />
-                        <span className="font-medium">{section.label}</span>
+                        <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                        <span className="font-medium text-sm md:text-base">
+                          {section.label}
+                        </span>
                       </button>
                     );
                   })}
                 </nav>
 
                 {/* Info do usuário */}
-                <div className="mt-8 pt-6 border-t border-gray-700/50">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <p className="text-white font-medium">{user.name}</p>
-                      <p className="text-gray-400 text-sm">{user.email}</p>
+                <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-gray-700/50">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="min-w-0">
+                      <p className="text-white font-medium text-sm md:text-base truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-gray-400 text-xs md:text-sm truncate">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -468,7 +515,7 @@ export default function SettingsPage() {
 
               {/* Botões de ação */}
               {hasChanges && (
-                <div className="mt-8 flex justify-end gap-4 animate-slide-up">
+                <div className="mt-6 md:mt-8 flex flex-col sm:flex-row justify-end gap-3 md:gap-4 animate-slide-up">
                   <button
                     onClick={() => {
                       setPasswordData({
@@ -478,14 +525,14 @@ export default function SettingsPage() {
                       });
                       setHasChanges(false);
                     }}
-                    className="px-6 py-3 border border-gray-600 rounded-xl text-gray-300 font-medium hover:border-gray-500 hover:bg-gray-700/50 transition-all flex items-center gap-2"
+                    className="px-4 py-2 md:px-6 md:py-3 border border-gray-600 rounded-lg md:rounded-xl text-gray-300 font-medium hover:border-gray-500 hover:bg-gray-700/50 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                   >
                     <X className="w-4 h-4" />
                     Descartar
                   </button>
                   <button
                     onClick={handleSave}
-                    className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-xl text-white font-semibold hover:shadow-cyber transition-all flex items-center gap-2"
+                    className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-lg md:rounded-xl text-white font-semibold hover:shadow-cyber transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                   >
                     <Save className="w-4 h-4" />
                     Salvar Alterações

@@ -1,5 +1,5 @@
 // src/components/insights/general/PlatformFilter.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
 const platforms = [
@@ -26,40 +26,56 @@ export default function PlatformFilter({ selected, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const current = platforms.find((p) => p.value === selected) || platforms[0];
 
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = () => setIsOpen(false);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative mb-12">
+    <div className="relative mb-4 sm:mb-6 lg:mb-8">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-5 px-8 py-5 bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-3xl text-white font-bold text-xl hover:bg-gray-700 hover:border-gray-600 transition-all shadow-lg"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        className="flex items-center sm:gap-3 lg:gap-4 px-3 sm:px-5 lg:px-6 py-2 sm:py-3 lg:py-4 bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-lg sm:rounded-xl lg:rounded-2xl text-white font-bold text-sm sm:text-base lg:text-lg hover:bg-gray-700 hover:border-gray-600 transition-all shadow-lg w-full sm:w-auto"
       >
         <div
-          className={`w-10 h-10 rounded-xl bg-gradient-to-r ${current.gradient} shadow-md`}
+          className={`w-5 h-4 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-md sm:rounded-lg bg-gradient-to-r ${current.gradient} shadow-md`}
         />
-        <span>{current.label}</span>
+        <span className="flex-1 text-left ml-2 sm:ml-0">
+          <span className="sm:hidden">Plataforma</span>
+          <span className="hidden sm:inline">{current.label}</span>
+        </span>
         <ChevronDown
-          className={`w-6 h-6 transition-transform ${
+          className={`w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 transition-transform ${
             isOpen ? "rotate-180" : ""
           }`}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 w-80 bg-gray-800 border border-gray-700 rounded-3xl shadow-2xl overflow-hidden z-30">
+        <div className="absolute top-full mt-1.5 sm:mt-2 lg:mt-3 left-1/2 -translate-x-1/2 w-56 sm:w-64 lg:w-72 bg-gray-800 border border-gray-700 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-2xl overflow-hidden z-30">
           {platforms.map((platform) => (
             <button
               key={platform.value}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 onChange(platform.value);
                 setIsOpen(false);
               }}
-              className={`w-full flex items-center gap-5 px-8 py-5 text-left text-white hover:bg-gray-700 transition-all ${
+              className={`w-full flex items-center gap-2 sm:gap-3 lg:gap-4 px-3 sm:px-5 lg:px-6 py-2.5 sm:py-3 lg:py-4 text-left text-white hover:bg-gray-700 transition-all ${
                 selected === platform.value ? "bg-gray-700" : ""
               }`}
             >
               <div
-                className={`w-10 h-10 rounded-xl bg-gradient-to-r ${platform.gradient} shadow-md`}
+                className={`w-5 h-4 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-md sm:rounded-lg bg-gradient-to-r ${platform.gradient} shadow-md`}
               />
-              <span className="font-semibold text-lg">{platform.label}</span>
+              <span className="font-semibold text-xs sm:text-sm lg:text-base">
+                {platform.label}
+              </span>
             </button>
           ))}
         </div>

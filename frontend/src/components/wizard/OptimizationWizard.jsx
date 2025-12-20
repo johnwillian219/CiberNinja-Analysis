@@ -1,9 +1,7 @@
 // src/components/wizard/OptimizationWizard.jsx
 import { useState } from "react";
-
 import WizardProgressBar from "./WizardProgressBar";
 import WizardNavigation from "./WizardNavigation";
-
 import Step1_ThumbnailLab from "./steps/Step1_ThumbnailLab";
 import Step2_TitleOptimizer from "./steps/Step2_TitleOptimizer";
 import Step3_DescriptionDoctor from "./steps/Step3_DescriptionDoctor";
@@ -54,7 +52,6 @@ export default function OptimizationWizard() {
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleStepClick = (stepIndex) => {
-    // Permite voltar para etapas anteriores, mas não pular futuras
     if (stepIndex <= currentStep) {
       setCurrentStep(stepIndex);
     }
@@ -76,48 +73,46 @@ export default function OptimizationWizard() {
   const CurrentComponent = steps[currentStep].component;
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {" "}
-      {/* Largura máxima controlada */}
-      <div className="bg-gray-800/60 backdrop-blur-md border border-gray-700/60 rounded-3xl shadow-2xl overflow-hidden">
-        {/* Cabeçalho do wizard */}
-        <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 px-10 py-8 border-b border-gray-700/50">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white text-center">
-            Fluxo de Otimização Guiado
-          </h2>
-          <p className="text-center text-gray-300 mt-4 text-lg">
-            Etapa{" "}
-            <span className="text-purple-400 font-bold">{currentStep + 1}</span>{" "}
-            de {steps.length} — {steps[currentStep].title}
-          </p>
-        </div>
+    <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
+      {/* Cabeçalho compacto */}
+      <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-700/50">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white text-center">
+          Fluxo de Otimização
+        </h2>
+        <p className="text-center text-gray-300 mt-1 text-xs sm:text-sm">
+          Etapa{" "}
+          <span className="text-purple-400 font-semibold">
+            {currentStep + 1}
+          </span>{" "}
+          de {steps.length}
+        </p>
+      </div>
 
-        {/* Barra de progresso */}
-        <div className="p-10 pb-4">
-          <WizardProgressBar
-            steps={steps}
-            currentStep={currentStep}
-            progress={progress}
-            onStepClick={handleStepClick}
-          />
-        </div>
+      {/* Barra de progresso compacta */}
+      <div className="px-4 sm:px-6 py-4">
+        <WizardProgressBar
+          steps={steps}
+          currentStep={currentStep}
+          progress={progress}
+          onStepClick={handleStepClick}
+        />
+      </div>
 
-        {/* Conteúdo da etapa */}
-        <div className="px-10 pb-10">
-          <div className="mt-8">
-            <CurrentComponent />
-          </div>
+      {/* Conteúdo da etapa */}
+      <div className="px-4 sm:px-6 pb-4">
+        <div className="mt-2 sm:mt-3">
+          <CurrentComponent />
         </div>
+      </div>
 
-        {/* Navegação */}
-        <div className="bg-gray-900/60 border-t border-gray-700/50 px-10 py-8">
-          <WizardNavigation
-            currentStep={currentStep}
-            totalSteps={steps.length}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-          />
-        </div>
+      {/* Navegação compacta */}
+      <div className="bg-gray-900/30 border-t border-gray-700/50 px-4 sm:px-6 py-4">
+        <WizardNavigation
+          currentStep={currentStep}
+          totalSteps={steps.length}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+        />
       </div>
     </div>
   );
