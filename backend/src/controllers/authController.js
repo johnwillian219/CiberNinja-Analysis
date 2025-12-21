@@ -21,7 +21,7 @@ export const register = async (req, res) => {
       website,
       location,
       bio,
-      profilePhoto, // opcional no register
+      profilePhoto,
     } = req.body;
 
     if (!email || !password) {
@@ -55,7 +55,7 @@ export const register = async (req, res) => {
         website,
         location,
         bio,
-        profilePhoto: profilePhoto || null, // salva base64 se enviado
+        profilePhoto: profilePhoto || null,
       },
     });
 
@@ -77,6 +77,8 @@ export const register = async (req, res) => {
         location: user.location,
         bio: user.bio,
         profilePhoto: user.profilePhoto,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin,
       },
     });
   } catch (error) {
@@ -108,6 +110,12 @@ export const login = async (req, res) => {
       return res.status(401).json({ error: "Credenciais inválidas" });
     }
 
+    // Atualiza o último acesso
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() },
+    });
+
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -126,6 +134,8 @@ export const login = async (req, res) => {
         location: user.location,
         bio: user.bio,
         profilePhoto: user.profilePhoto,
+        createdAt: user.createdAt,
+        lastLogin: new Date(), // atualizado agora
       },
     });
   } catch (error) {
@@ -153,6 +163,7 @@ export const getCurrentUser = async (req, res) => {
         bio: true,
         profilePhoto: true,
         createdAt: true,
+        lastLogin: true,
       },
     });
 
@@ -180,10 +191,9 @@ export const updateProfile = async (req, res) => {
       website,
       location,
       bio,
-      profilePhoto, // recebe base64 do frontend
+      profilePhoto,
     } = req.body;
 
-    // Verificar se o username mudou e se já existe
     if (username && username !== req.user.username) {
       const existingUsername = await prisma.user.findUnique({
         where: { username },
@@ -203,7 +213,7 @@ export const updateProfile = async (req, res) => {
         website,
         location,
         bio,
-        profilePhoto: profilePhoto || undefined, // salva novo base64 ou mantém antigo
+        profilePhoto: profilePhoto ?? undefined,
       },
       select: {
         id: true,
@@ -217,6 +227,7 @@ export const updateProfile = async (req, res) => {
         bio: true,
         profilePhoto: true,
         createdAt: true,
+        lastLogin: true,
       },
     });
 
@@ -224,5 +235,61 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     console.error("Erro ao atualizar perfil:", error);
     res.status(500).json({ error: "Erro ao salvar perfil" });
+  }
+};
+
+// ========================
+// CHANGE PASSWORD (POST /change-password)
+// ========================
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Senhas são obrigatórias" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+    });
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      return res.status(401).json({ error: "Senha atual incorreta" });
+    }
+
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({ error: "Nova senha deve ter pelo menos 6 caracteres" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { password: hashedNewPassword },
+    });
+
+    res.json({ message: "Senha alterada com sucesso" });
+  } catch (error) {
+    console.error("Erro ao alterar senha:", error);
+    res.status(500).json({ error: "Erro ao alterar senha" });
+  }
+};
+
+// ========================
+// DELETE ACCOUNT (DELETE /me)
+// ========================
+export const deleteAccount = async (req, res) => {
+  try {
+    await prisma.user.delete({
+      where: { id: req.user.id },
+    });
+
+    res.status(200).json({ message: "Conta eliminada com sucesso" });
+  } catch (error) {
+    console.error("Erro ao eliminar conta:", error);
+    res.status(500).json({ error: "Erro ao eliminar conta" });
   }
 };
