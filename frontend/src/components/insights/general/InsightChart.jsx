@@ -12,12 +12,11 @@ import {
 } from "recharts";
 import { ChevronDown, BarChart3, Users, Clock } from "lucide-react";
 
-// Importar dados reais de cada plataforma
+/* Importar dados reais de cada plataforma
 import { viewsData as youtubeViews } from "../../youtube/data/viewsData";
 import { subscribersData as youtubeSubs } from "../../youtube/data/subscribersData";
-import { watchTimeData as youtubeWatch } from "../../youtube/data/watchTimeData";
+import { watchTimeData as youtubeWatch } from "../../youtube/data/watchTimeData";*/
 
-import { viewsData as tiktokViews } from "../../tiktok/data/viewsData";
 import { likesData as tiktokLikes } from "../../tiktok/data/likesData";
 import { sharesData as tiktokShares } from "../../tiktok/data/sharesData";
 
@@ -39,8 +38,8 @@ const metrics = [
     icon: BarChart3,
     color: "#8b5cf6",
     data: {
-      YouTube: youtubeViews,
-      TikTok: tiktokViews,
+      // YouTube: youtubeViews,
+      //TikTok: tiktokViews,
       Instagram: instagramReach,
       Facebook: facebookReach,
     },
@@ -54,7 +53,7 @@ const metrics = [
     icon: Users,
     color: "#10b981",
     data: {
-      YouTube: youtubeSubs,
+      // YouTube: youtubeSubs,
       TikTok: tiktokLikes,
       Instagram: instagramSaves,
       Facebook: facebookReactions,
@@ -69,7 +68,7 @@ const metrics = [
     icon: Clock,
     color: "#f59e0b",
     data: {
-      YouTube: youtubeWatch,
+      // YouTube: youtubeWatch,
       TikTok: tiktokShares,
       Instagram: instagramImpressions,
       Facebook: facebookShares,

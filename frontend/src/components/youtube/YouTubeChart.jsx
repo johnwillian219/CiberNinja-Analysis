@@ -1,5 +1,6 @@
 // src/components/youtube/YouTubeChart.jsx
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -9,279 +10,608 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { ChevronDown, BarChart3, TrendingUp, Users, Clock } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Eye,
+  Users,
+  Clock,
+  RefreshCw,
+  Calendar,
+  Filter,
+  ChevronDown,
+  Zap,
+  BarChart3,
+  PlayCircle,
+  MessageSquare,
+  Heart,
+  DollarSign,
+  Info,
+} from "lucide-react";
 
-import { viewsData } from "./data/viewsData";
-import { subscribersData } from "./data/subscribersData";
-import { watchTimeData } from "./data/watchTimeData";
+import { useYouTubeData } from "../../hooks/useYouTubeData";
 
-const chartConfigs = [
-  {
-    type: "views",
-    label: "Views",
-    fullLabel: "Visualizações",
+// Configurações das métricas disponíveis
+const metricConfigs = {
+  views: {
+    label: "Visualizações",
+    icon: Eye,
     color: "#ef4444",
-    icon: BarChart3,
-    data: viewsData,
-    formatValue: (v) => `${(v / 1000).toFixed(1)}K`,
-    shortFormat: (v) => `${(v / 1000).toFixed(0)}K`,
+    gradientStart: "#ef4444",
+    gradientEnd: "#f87171",
+    formatValue: (value) => {
+      if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+      if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
+      return value.toLocaleString("pt-BR");
+    },
+    unit: "",
   },
-  {
-    type: "subscribers",
-    label: "Inscritos",
-    fullLabel: "Inscritos",
-    color: "#10b981",
+  subscribersGained: {
+    label: "Inscritos Ganhos",
     icon: Users,
-    data: subscribersData,
-    formatValue: (v) => v.toLocaleString(),
-    shortFormat: (v) => v.toLocaleString(),
+    color: "#10b981",
+    gradientStart: "#10b981",
+    gradientEnd: "#34d399",
+    formatValue: (value) => {
+      if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+      return value.toLocaleString("pt-BR");
+    },
+    unit: "",
   },
-  {
-    type: "watchTime",
-    label: "Tempo",
-    fullLabel: "Tempo de Exibição",
-    color: "#8b5cf6",
+  watchTime: {
+    label: "Tempo de Exibição",
     icon: Clock,
-    data: watchTimeData,
-    formatValue: (v) => `${(v / 1000).toFixed(1)}K h`,
-    shortFormat: (v) => `${(v / 1000).toFixed(0)}K h`,
+    color: "#8b5cf6",
+    gradientStart: "#8b5cf6",
+    gradientEnd: "#a78bfa",
+    formatValue: (value) => {
+      const hours = Math.round(value / 60);
+      if (hours >= 1000) return `${(hours / 1000).toFixed(1)}K`;
+      return hours.toLocaleString("pt-BR");
+    },
+    unit: "h",
   },
-];
+  likes: {
+    label: "Curtidas",
+    icon: Heart,
+    color: "#f59e0b",
+    gradientStart: "#f59e0b",
+    gradientEnd: "#fbbf24",
+    formatValue: (value) => {
+      if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+      return value.toLocaleString("pt-BR");
+    },
+    unit: "",
+  },
+  comments: {
+    label: "Comentários",
+    icon: MessageSquare,
+    color: "#06b6d4",
+    gradientStart: "#06b6d4",
+    gradientEnd: "#22d3ee",
+    formatValue: (value) => {
+      if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+      return value.toLocaleString("pt-BR");
+    },
+    unit: "",
+  },
+  estimatedRevenue: {
+    label: "Receita Estimada",
+    icon: DollarSign,
+    color: "#84cc16",
+    gradientStart: "#84cc16",
+    gradientEnd: "#a3e635",
+    formatValue: (value) => {
+      if (!value) return "R$ 0";
+      if (value >= 1000) return `R$ ${(value / 1000).toFixed(1)}K`;
+      return `R$ ${value.toFixed(2).replace(".", ",")}`;
+    },
+    unit: "",
+  },
+};
 
-const filters = [
-  { label: "7d", value: "7d", days: 7 },
-  { label: "30d", value: "30d", days: 30 },
-  { label: "Tudo", value: "all", days: 90 },
+// Períodos disponíveis
+const periods = [
+  { id: 7, label: "7 dias" },
+  { id: 14, label: "14 dias" },
+  { id: 30, label: "30 dias" },
+  { id: 90, label: "90 dias" },
 ];
 
 export default function YouTubeChart() {
-  const [selectedChart, setSelectedChart] = useState("views");
-  const [selectedFilter, setSelectedFilter] = useState("30d");
-  const [isChartOpen, setIsChartOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { data, loading, error, lastUpdated, refetch, hasData } =
+    useYouTubeData();
 
-  // Fechar dropdowns ao clicar fora
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setIsChartOpen(false);
-      setIsFilterOpen(false);
+  const [selectedMetric, setSelectedMetric] = useState("views");
+  const [selectedPeriod, setSelectedPeriod] = useState(30);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [showMetricSelector, setShowMetricSelector] = useState(false);
+  const [showPeriodSelector, setShowPeriodSelector] = useState(false);
+
+  // Formatar data para exibição
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date
+      .toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "short",
+      })
+      .replace(/ de /g, "/");
+  };
+
+  // Processar dados para o gráfico
+  const chartData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+
+    // Filtrar pelo período selecionado
+    const filteredData = data.slice(-selectedPeriod);
+
+    // Processar cada dia
+    return filteredData.map((item) => {
+      const date = formatDate(item.day);
+      const value = item[selectedMetric] || 0;
+
+      return {
+        date,
+        value,
+        rawDate: item.day,
+        fullDate: new Date(item.day).toLocaleDateString("pt-BR", {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+        }),
+      };
+    });
+  }, [data, selectedMetric, selectedPeriod]);
+
+  // Calcular estatísticas
+  const stats = useMemo(() => {
+    if (!chartData || chartData.length === 0) return null;
+
+    const values = chartData.map((d) => d.value);
+    const total = values.reduce((sum, val) => sum + val, 0);
+    const average = total / values.length;
+    const maxValue = Math.max(...values);
+    const minValue = Math.min(...values);
+
+    // Encontrar dia com valor máximo
+    const maxDay = chartData.find((d) => d.value === maxValue);
+
+    // Calcular variação (último vs primeiro)
+    const firstValue = chartData[0]?.value || 0;
+    const lastValue = chartData[chartData.length - 1]?.value || 0;
+    const change =
+      firstValue > 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
+
+    return {
+      total,
+      average,
+      maxValue,
+      minValue,
+      maxDay,
+      change,
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+  }, [chartData]);
 
-  const currentConfig = chartConfigs.find((c) => c.type === selectedChart);
-  const CurrentIcon = currentConfig?.icon || BarChart3;
+  // Tooltip personalizado
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload || payload.length === 0) return null;
 
-  const getFilteredData = () => {
-    let data = currentConfig.data;
-    if (selectedFilter === "7d") return data.slice(-7);
-    if (selectedFilter === "30d") return data.slice(-30);
-    return data.slice(-90); // Máximo 90 dias para performance
+    const dataPoint = payload[0].payload;
+    const config = metricConfigs[selectedMetric];
+
+    return (
+      <div className="bg-gray-900 border border-gray-700 rounded-lg p-3 shadow-xl">
+        <p className="text-sm font-medium text-gray-300 mb-2">
+          {dataPoint.fullDate}
+        </p>
+        <div className="flex items-center gap-2 mb-1">
+          <div
+            className="w-3 h-3 rounded-full"
+            style={{ backgroundColor: config.color }}
+          />
+          <span className="text-sm text-gray-400">{config.label}:</span>
+        </div>
+        <p className="text-xl font-bold text-white">
+          {config.formatValue(dataPoint.value)} {config.unit}
+        </p>
+      </div>
+    );
   };
 
-  const data = getFilteredData();
+  // Auto-refresh
+  useEffect(() => {
+    let interval;
+    if (autoRefresh && hasData) {
+      interval = setInterval(() => {
+        refetch();
+      }, 5 * 60 * 1000);
+    }
+    return () => clearInterval(interval);
+  }, [autoRefresh, hasData, refetch]);
 
-  // Calcular variação percentual
-  const calculateChange = () => {
-    if (data.length < 2) return 0;
-    const first = data[0]?.value || 0;
-    const last = data[data.length - 1]?.value || 0;
-    if (first === 0) return 100;
-    return ((last - first) / first) * 100;
-  };
+  // Loading
+  if (loading && !hasData) {
+    return (
+      <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-4 md:p-6 animate-pulse">
+        <div className="h-7 w-48 bg-gray-700 rounded mb-4" />
+        <div className="h-64 bg-gray-700 rounded-xl mb-4" />
+        <div className="grid grid-cols-2 gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-16 bg-gray-700 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-  const change = calculateChange();
-  const isPositive = change >= 0;
+  // Erro
+  if (error || !hasData) {
+    return (
+      <div className="bg-gray-800/70 backdrop-blur-sm border border-red-500/30 rounded-2xl p-6">
+        <div className="text-center py-8">
+          <BarChart3 className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-bold text-white mb-2">
+            {error ? "Erro ao carregar" : "Sem dados"}
+          </h3>
+          <p className="text-gray-400 text-sm mb-4">
+            {error?.message || "Conecte sua conta para ver os gráficos."}
+          </p>
+          <button
+            onClick={refetch}
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition-colors"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const config = metricConfigs[selectedMetric];
 
   return (
-    <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-6 mb-6 sm:mb-8 lg:mb-10">
-      {/* Header compacto para mobile */}
-      <div className="mb-4 sm:mb-6">
-        {/* Linha 1: Título e status */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 sm:p-2 rounded-lg bg-gray-700/50">
-              <CurrentIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            </div>
-            <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white">
-              {currentConfig.fullLabel}
-            </h2>
+    <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-4 md:p-6">
+      {/* Cabeçalho */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <config.icon className="w-5 h-5" style={{ color: config.color }} />
+            <h2 className="text-xl font-bold text-white">{config.label}</h2>
           </div>
-
-          {/* Status de variação */}
-          <div
-            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-              isPositive
-                ? "bg-emerald-500/20 text-emerald-400"
-                : "bg-red-500/20 text-red-400"
-            }`}
-          >
-            {isPositive ? "↑" : "↓"}
-            <span>{Math.abs(change).toFixed(1)}%</span>
-          </div>
+          <p className="text-sm text-gray-400">
+            Evolução ao longo do tempo •{" "}
+            {periods.find((p) => p.id === selectedPeriod)?.label}
+          </p>
         </div>
 
-        {/* Linha 2: Valor atual e seletor de período */}
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
-              {data.length > 0
-                ? currentConfig.shortFormat(data[data.length - 1]?.value || 0)
-                : "0"}
-            </p>
-            <p className="text-xs text-gray-400 mt-0.5">Atual</p>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs ${
+              autoRefresh
+                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                : "bg-gray-700/50 text-gray-400 border border-gray-600"
+            }`}
+            title="Atualização automática"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${
+                autoRefresh ? "animate-spin-slow" : ""
+              }`}
+            />
+            <span className="hidden sm:inline">Auto</span>
+          </button>
 
-          {/* Seletor de período - Tabs para mobile */}
-          <div className="flex items-center gap-1 bg-gray-700/50 rounded-lg p-0.5">
-            {filters.map((filter) => (
-              <button
-                key={filter.value}
-                onClick={() => setSelectedFilter(filter.value)}
-                className={`px-2 sm:px-3 py-1 rounded-md text-xs font-medium transition-all ${
-                  selectedFilter === filter.value
-                    ? "bg-gray-600 text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
+          <button
+            onClick={refetch}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-700/50 hover:bg-gray-600 border border-gray-600 text-gray-300 hover:text-white rounded-lg text-xs transition-colors"
+            title="Atualizar dados"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Atualizar</span>
+          </button>
         </div>
       </div>
 
-      {/* Gráfico principal */}
-      <div className="h-48 sm:h-56 lg:h-72 xl:h-80 mb-4">
+      {/* Filtros */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        {/* Seletor de métrica */}
+        <div className="relative flex-1">
+          <button
+            onClick={() => setShowMetricSelector(!showMetricSelector)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-gray-300 hover:text-white transition-colors w-full"
+          >
+            <Filter className="w-4 h-4" />
+            <span className="text-sm font-medium">{config.label}</span>
+            <ChevronDown className="w-4 h-4 ml-auto" />
+          </button>
+
+          {showMetricSelector && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowMetricSelector(false)}
+              />
+              <div className="absolute top-full mt-2 left-0 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-20">
+                <div className="p-2">
+                  <p className="text-xs text-gray-400 px-2 py-1">
+                    Selecione uma métrica:
+                  </p>
+                  {Object.entries(metricConfigs).map(([key, metric]) => {
+                    const Icon = metric.icon;
+                    const isActive = key === selectedMetric;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          setSelectedMetric(key);
+                          setShowMetricSelector(false);
+                        }}
+                        className={`flex items-center gap-3 px-3 py-2.5 text-sm w-full hover:bg-gray-700 transition-colors rounded ${
+                          isActive ? "text-white" : "text-gray-300"
+                        }`}
+                        style={
+                          isActive
+                            ? {
+                                backgroundColor: `${metric.color}20`,
+                                borderLeft: `3px solid ${metric.color}`,
+                              }
+                            : {}
+                        }
+                      >
+                        <Icon
+                          className="w-4 h-4"
+                          style={{ color: metric.color }}
+                        />
+                        <span className="text-left flex-1">{metric.label}</span>
+                        {isActive && (
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: metric.color }}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Seletor de período */}
+        <div className="relative flex-1">
+          <button
+            onClick={() => setShowPeriodSelector(!showPeriodSelector)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-gray-300 hover:text-white transition-colors w-full"
+          >
+            <Calendar className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {periods.find((p) => p.id === selectedPeriod)?.label}
+            </span>
+            <ChevronDown className="w-4 h-4 ml-auto" />
+          </button>
+
+          {showPeriodSelector && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowPeriodSelector(false)}
+              />
+              <div className="absolute top-full mt-2 left-0 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-20">
+                <div className="p-2">
+                  <p className="text-xs text-gray-400 px-2 py-1">
+                    Período de análise:
+                  </p>
+                  {periods.map((period) => {
+                    const isActive = period.id === selectedPeriod;
+                    return (
+                      <button
+                        key={period.id}
+                        onClick={() => {
+                          setSelectedPeriod(period.id);
+                          setShowPeriodSelector(false);
+                        }}
+                        className={`flex items-center gap-3 px-3 py-2.5 text-sm w-full hover:bg-gray-700 transition-colors rounded ${
+                          isActive ? "text-white bg-gray-700" : "text-gray-300"
+                        }`}
+                      >
+                        <span className="flex-1 text-left">{period.label}</span>
+                        {isActive && (
+                          <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Gráfico */}
+      <div className="h-64 md:h-80 mb-6">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={data}
-            margin={{ top: 5, right: 0, left: -20, bottom: 0 }}
+            data={chartData}
+            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
           >
             <defs>
-              <linearGradient
-                id={`color${selectedChart}`}
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="5%"
-                  stopColor={currentConfig.color}
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={currentConfig.color}
-                  stopOpacity={0}
-                />
+              <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={config.color} stopOpacity={0.8} />
+                <stop offset="95%" stopColor={config.color} stopOpacity={0} />
               </linearGradient>
             </defs>
+
             <CartesianGrid
-              strokeDasharray="2 2"
+              strokeDasharray="3 3"
               stroke="#374151"
+              horizontal={true}
               vertical={false}
             />
+
             <XAxis
               dataKey="date"
               stroke="#9ca3af"
-              tick={{ fontSize: 10 }}
-              tickMargin={5}
+              fontSize={11}
               axisLine={false}
               tickLine={false}
               minTickGap={20}
             />
+
             <YAxis
               stroke="#9ca3af"
-              tickFormatter={currentConfig.shortFormat}
-              tick={{ fontSize: 10 }}
+              fontSize={11}
               axisLine={false}
               tickLine={false}
               width={35}
+              tickFormatter={(value) => {
+                if (value >= 1000000) return `${(value / 1000000).toFixed(0)}M`;
+                if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
+                return value;
+              }}
             />
+
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#1f2937",
-                border: "1px solid #374151",
-                borderRadius: "6px",
-                fontSize: "12px",
-                padding: "8px",
+              content={<CustomTooltip />}
+              cursor={{
+                stroke: config.color,
+                strokeWidth: 1,
+                strokeOpacity: 0.3,
               }}
-              labelStyle={{
-                color: "#9ca3af",
-                fontSize: "11px",
-                marginBottom: "4px",
-              }}
-              formatter={(value) => [
-                currentConfig.formatValue(value),
-                currentConfig.fullLabel,
-              ]}
-              separator=": "
             />
+
             <Area
               type="monotone"
               dataKey="value"
-              stroke={currentConfig.color}
-              strokeWidth={1.5}
-              fillOpacity={1}
-              fill={`url(#color${selectedChart})`}
-              dot={false}
+              stroke={config.color}
+              strokeWidth={2}
+              fill="url(#gradient)"
+              fillOpacity={0.3}
+              dot={{
+                r: 3,
+                fill: config.color,
+                strokeWidth: 2,
+                stroke: "#1f2937",
+              }}
               activeDot={{
-                r: 4,
-                fill: currentConfig.color,
-                stroke: "#fff",
-                strokeWidth: 1,
+                r: 5,
+                fill: config.color,
+                stroke: "#1f2937",
+                strokeWidth: 2,
               }}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Seletor de tipo de gráfico - Mobile friendly */}
-      <div className="flex items-center justify-between">
-        {/* Botões de tipo de gráfico */}
-        <div className="flex items-center gap-1 bg-gray-700/50 rounded-lg p-0.5 w-full">
-          {chartConfigs.map((config) => {
-            const Icon = config.icon;
-            const isActive = selectedChart === config.type;
-            return (
-              <button
-                key={config.type}
-                onClick={() => setSelectedChart(config.type)}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-md text-xs font-medium transition-all ${
-                  isActive
-                    ? "bg-gray-600 text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
+      {/* Estatísticas */}
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* Total */}
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="p-1.5 rounded-lg"
+                style={{ backgroundColor: `${config.color}20` }}
               >
-                <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">{config.label}</span>
-              </button>
-            );
-          })}
-        </div>
+                <PlayCircle
+                  className="w-4 h-4"
+                  style={{ color: config.color }}
+                />
+              </div>
+              <span className="text-sm text-gray-400">Total</span>
+            </div>
+            <p className="text-2xl font-bold text-white">
+              {config.formatValue(stats.total)} {config.unit}
+            </p>
+          </div>
 
-        {/* Botão detalhes (opcional) */}
-        <button className="ml-2 p-2 rounded-lg bg-gray-700/50 hover:bg-gray-600 transition-all flex-shrink-0">
-          <TrendingUp className="w-4 h-4 text-gray-300" />
-        </button>
-      </div>
+          {/* Média */}
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="p-1.5 rounded-lg"
+                style={{ backgroundColor: `${config.color}20` }}
+              >
+                <BarChart3
+                  className="w-4 h-4"
+                  style={{ color: config.color }}
+                />
+              </div>
+              <span className="text-sm text-gray-400">Média/dia</span>
+            </div>
+            <p className="text-2xl font-bold text-white">
+              {config.formatValue(stats.average)} {config.unit}
+            </p>
+          </div>
 
-      {/* Legenda e informações extras (opcional) */}
-      <div className="mt-4 flex items-center justify-between text-xs text-gray-400">
-        <div className="flex items-center gap-4">
-          <span>
-            Período:{" "}
-            {filters.find((f) => f.value === selectedFilter)?.days || 30} dias
-          </span>
-          <span className="hidden sm:inline">•</span>
-          <span className="hidden sm:inline">{data.length} pontos</span>
+          {/* Pico */}
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="p-1.5 rounded-lg"
+                style={{ backgroundColor: `${config.color}20` }}
+              >
+                <Zap className="w-4 h-4" style={{ color: config.color }} />
+              </div>
+              <span className="text-sm text-gray-400">Pico</span>
+            </div>
+            <p className="text-2xl font-bold text-white">
+              {config.formatValue(stats.maxValue)} {config.unit}
+            </p>
+            {stats.maxDay && (
+              <p className="text-xs text-gray-500 mt-1">
+                {stats.maxDay.fullDate}
+              </p>
+            )}
+          </div>
+
+          {/* Variação */}
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="p-1.5 rounded-lg"
+                style={{ backgroundColor: `${config.color}20` }}
+              >
+                {stats.change >= 0 ? (
+                  <TrendingUp
+                    className="w-4 h-4"
+                    style={{ color: config.color }}
+                  />
+                ) : (
+                  <TrendingDown
+                    className="w-4 h-4"
+                    style={{ color: "#ef4444" }}
+                  />
+                )}
+              </div>
+              <span className="text-sm text-gray-400">Variação</span>
+            </div>
+            <p
+              className={`text-2xl font-bold ${
+                stats.change >= 0 ? "text-emerald-400" : "text-red-400"
+              }`}
+            >
+              {stats.change >= 0 ? "+" : ""}
+              {stats.change.toFixed(1)}%
+            </p>
+            <p className="text-xs text-gray-500 mt-1">do início ao fim</p>
+          </div>
         </div>
-        <span className="text-cyan-400 font-medium">
-          {isPositive ? "Crescendo" : "Decaindo"}
-        </span>
+      )}
+
+      {/* Informações adicionais */}
+      <div className="mt-6 pt-6 border-t border-gray-700/50">
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2 text-gray-400">
+            <Info className="w-4 h-4" />
+            <span>Geração automática de gráficos</span>
+          </div>
+          <div className="text-gray-500">Dados em tempo real • API YouTube</div>
+        </div>
       </div>
     </div>
   );

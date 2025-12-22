@@ -22,13 +22,13 @@ model User {
   location     String?
   bio          String?
   profilePhoto String?  // URL da foto (Cloudinary, Supabase Storage, etc)
-
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  lastLogin     DateTime?
+  lastLogin    DateTime?
 
-  // Relação: um usuário tem muitos eventos
+  // Relações
   events       Event[]
+  youtubeToken YouTubeToken?  // Um usuário pode ter no máximo um conjunto de tokens do YouTube
 
   @@map("users")
 }
@@ -37,21 +37,41 @@ model User {
 // Modelo Event - Otimizado para calendário
 // ================================
 model Event {
-  id           Int      @id @default(autoincrement())
-  title        String
-  description  String?
-  platform     String   // YouTube, TikTok, Instagram, Facebook
-  type         String   // video, short, reel, live, post
-  date         DateTime // data e hora do agendamento
-  isBestTime   Boolean  @default(false)
-  status       String   @default("scheduled") // scheduled, published, draft, cancelled
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  platform    String   // YouTube, TikTok, Instagram, Facebook
+  type        String   // video, short, reel, live, post
+  date        DateTime // data e hora do agendamento
+  isBestTime  Boolean  @default(false)
+  status      String   @default("scheduled") // scheduled, published, draft, cancelled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relação: evento pertence a um usuário
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
 
   @@map("events")
+}
+
+// ================================
+// Modelo YouTubeToken - Tokens OAuth do YouTube por usuário
+// ================================
+model YouTubeToken {
+  id            Int      @id @default(autoincrement())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int      @unique  // Garante apenas um registro por usuário
+
+  accessToken   String
+  refreshToken  String?  // Pode ser null na primeira autenticação se não for offline
+  expiryDate    BigInt?  // Timestamp em milissegundos (como o googleapis retorna)
+  scope         String   // Scopes concedidos (para auditoria)
+  tokenType     String?  // geralmente "Bearer"
+  idToken       String?  // Opcional: útil para obter email/sub do Google
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("youtube_tokens")
 }

@@ -1,7 +1,8 @@
 // src/pages/LoginPage.jsx
+
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import api from "../services/api"; // ← import do serviço
+import api from "../services/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,10 +18,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await api.login({ email, password });
-      navigate("/dashboard"); // ou "/dashboard"
+      const response = await api.login({ email, password });
+      console.log("Login sucesso:", response); // Para depuração (podes remover depois)
+
+      // Redireciona para o dashboard após sucesso
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Credenciais inválidas");
+      console.error("Erro no login:", err.message);
+      setError(
+        err.message || "Credenciais inválidas. Verifique email e senha."
+      );
     } finally {
       setLoading(false);
     }
@@ -43,7 +50,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+              className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition"
               placeholder="seu@email.com"
               required
               disabled={loading}
@@ -56,31 +63,41 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+              className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition"
               placeholder="••••••••"
               required
               disabled={loading}
             />
           </div>
 
-          {error && <p className="text-red-400 text-center">{error}</p>}
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300 text-center">
+              {error}
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-purple-500/50 transition-all disabled:opacity-70"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-purple-500/50 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-400">
-          <Link to="/forgot-password" className="hover:text-purple-400">
+          <Link
+            to="/forgot-password"
+            className="hover:text-purple-400 transition"
+          >
             Esqueceu a senha?
           </Link>
           <div className="mt-2">
             Não tem conta?{" "}
-            <Link to="/register" className="text-purple-400 hover:underline">
+            <Link
+              to="/register"
+              className="text-purple-400 hover:underline transition"
+            >
               Registre-se
             </Link>
           </div>
