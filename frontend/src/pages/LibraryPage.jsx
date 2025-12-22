@@ -1,4 +1,5 @@
-// src/pages/LibraryPage.jsx
+{
+  /*// src/pages/LibraryPage.jsx
 import DashboardLayout from "../components/layout/DashboardLayout";
 
 import LibraryHeader from "../components/library/LibraryHeader";
@@ -9,15 +10,19 @@ export default function LibraryPage() {
   return (
     <DashboardLayout>
       <div className="pb-16 lg:p-10 min-h-screen">
-        {/* Cabeçalho 
-        <LibraryHeader />
+        {/* Cabeçalho */
+}
+<LibraryHeader />;
 
-        {/* Estatísticas 
+{
+  /* Estatísticas 
         <LibraryStats />
 
         {/* Conteúdo principal: filtros + grid + estados 
-        <LibraryContent />*/}
+        <LibraryContent />
       </div>
     </DashboardLayout>
   );
+}
+*/
 }
