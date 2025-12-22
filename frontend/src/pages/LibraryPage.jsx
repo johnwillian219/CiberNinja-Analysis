@@ -9,14 +9,14 @@ export default function LibraryPage() {
   return (
     <DashboardLayout>
       <div className="pb-16 lg:p-10 min-h-screen">
-        {/* Cabeçalho */}
+        {/* Cabeçalho 
         <LibraryHeader />
 
-        {/* Estatísticas */}
+        {/* Estatísticas 
         <LibraryStats />
 
-        {/* Conteúdo principal: filtros + grid + estados */}
-        <LibraryContent />
+        {/* Conteúdo principal: filtros + grid + estados 
+        <LibraryContent />*/}
       </div>
     </DashboardLayout>
   );
