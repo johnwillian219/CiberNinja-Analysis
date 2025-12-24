@@ -1,4 +1,5 @@
-// src/pages/MonetizationPage.jsx
+// src/pages/MonetizationPage.jsx - COM ESTILOS DINÂMICOS BASEADOS NOS GANHOS REAIS
+
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { Link } from "react-router-dom";
 import {
@@ -10,49 +11,119 @@ import {
   TrendingUp,
   AlertCircle,
 } from "lucide-react";
-import { useState } from "react";
-
-const platforms = [
-  {
-    name: "YouTube",
-    icon: Youtube,
-    color: "bg-red-500",
-    monetized: true,
-    earnings: 320,
-    change: "+12%",
-    path: "/monetization/youtube",
-  },
-  {
-    name: "TikTok",
-    icon: Music,
-    color: "bg-pink-500",
-    monetized: true,
-    earnings: 185,
-    change: "+8%",
-    path: "/monetization/tiktok",
-  },
-  {
-    name: "Instagram",
-    icon: Instagram,
-    color: "bg-purple-500",
-    monetized: false,
-    earnings: 0,
-    change: null,
-    path: "/monetization/instagram",
-  },
-  {
-    name: "Facebook",
-    icon: Facebook,
-    color: "bg-blue-500",
-    monetized: false,
-    earnings: 0,
-    change: null,
-    path: "/monetization/facebook",
-  },
-];
+import { useYouTubeData } from "../hooks/useYouTubeData";
 
 export default function MonetizationPage() {
-  const [totalEarnings] = useState(505); // YouTube + TikTok
+  const { data, loading } = useYouTubeData();
+
+  // Calcula receita estimada dos últimos 30 dias
+  const youtubeEarningsRaw =
+    data && data.length > 0
+      ? data
+          .slice(-30)
+          .reduce((acc, day) => acc + (day.estimatedRevenue || 0), 0)
+      : 0;
+
+  const youtubeEarnings = youtubeEarningsRaw.toFixed(2);
+  const totalEarnings = parseFloat(youtubeEarnings); // Por agora só YouTube
+
+  // === ESTILOS DINÂMICOS BASEADOS NO VALOR ===
+  const getYouTubeCardStyle = (earnings) => {
+    const value = parseFloat(earnings);
+    if (value >= 500) {
+      return {
+        color: "bg-emerald-500",
+        border: "border-emerald-500/50 hover:border-emerald-400/70",
+        shadow: "hover:shadow-emerald-500/20",
+        badgeBg: "bg-emerald-500/10",
+        badgeText: "text-emerald-300",
+        changeColor: "text-emerald-400",
+      };
+    } else if (value >= 200) {
+      return {
+        color: "bg-amber-500",
+        border: "border-amber-500/50 hover:border-amber-400/70",
+        shadow: "hover:shadow-amber-500/20",
+        badgeBg: "bg-amber-500/10",
+        badgeText: "text-amber-300",
+        changeColor: "text-amber-400",
+      };
+    } else if (value >= 50) {
+      return {
+        color: "bg-blue-500",
+        border: "border-blue-500/50 hover:border-blue-400/70",
+        shadow: "hover:shadow-blue-500/20",
+        badgeBg: "bg-blue-500/10",
+        badgeText: "text-blue-300",
+        changeColor: "text-blue-400",
+      };
+    } else {
+      return {
+        color: "bg-gray-500",
+        border: "border-gray-500/50 hover:border-gray-400/70",
+        shadow: "hover:shadow-gray-500/10",
+        badgeBg: "bg-gray-500/10",
+        badgeText: "text-gray-300",
+        changeColor: "text-gray-400",
+      };
+    }
+  };
+
+  const ytStyle = getYouTubeCardStyle(youtubeEarnings);
+
+  // Simulação de crescimento (podes calcular real depois)
+  const growthPercentage = "+12%"; // ou calcula com dados anteriores
+
+  const platforms = [
+    {
+      name: "YouTube",
+      icon: Youtube,
+      color: ytStyle.color,
+      monetized: true,
+      earnings: youtubeEarnings,
+      change: growthPercentage,
+      path: "/monetization/youtube",
+      customStyle: ytStyle,
+    },
+    {
+      name: "TikTok",
+      icon: Music,
+      color: "bg-pink-500",
+      monetized: true,
+      earnings: 185,
+      change: "+8%",
+      path: "/monetization/tiktok",
+    },
+    {
+      name: "Instagram",
+      icon: Instagram,
+      color: "bg-purple-500",
+      monetized: false,
+      earnings: 0,
+      change: null,
+      path: "/monetization/instagram",
+    },
+    {
+      name: "Facebook",
+      icon: Facebook,
+      color: "bg-blue-500",
+      monetized: false,
+      earnings: 0,
+      change: null,
+      path: "/monetization/facebook",
+    },
+  ];
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="p-8 text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500"></div>
+          <p className="text-gray-400 mt-4">Carregando ganhos do YouTube...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -63,10 +134,17 @@ export default function MonetizationPage() {
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
               Monetização
             </h1>
-            <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-full">
-              <Euro className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400 text-sm font-bold">
-                €{totalEarnings}
+            <div
+              className={`flex items-center gap-1.5 ${ytStyle.badgeBg} px-2.5 py-1 rounded-full`}
+            >
+              <Euro
+                className={`w-3.5 h-3.5 ${ytStyle.badgeText.replace(
+                  "bg-",
+                  "text-"
+                )}`}
+              />
+              <span className={`text-lg font-bold ${ytStyle.badgeText}`}>
+                €{totalEarnings.toFixed(2)}
               </span>
             </div>
           </div>
@@ -80,7 +158,9 @@ export default function MonetizationPage() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-xs text-gray-400">Total ganho</p>
-              <p className="text-xl font-bold text-white">€{totalEarnings}</p>
+              <p className="text-xl font-bold text-white">
+                €{totalEarnings.toFixed(2)}
+              </p>
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="w-4 h-4 text-emerald-400" />
@@ -93,11 +173,12 @@ export default function MonetizationPage() {
           </div>
         </div>
 
-        {/* Cards das plataformas - Grid responsivo */}
+        {/* Cards das plataformas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
           {platforms.map((platform) => {
             const Icon = platform.icon;
             const isMonetized = platform.monetized;
+            const custom = platform.customStyle || {};
 
             return (
               <Link
@@ -105,7 +186,11 @@ export default function MonetizationPage() {
                 to={platform.path}
                 className={`group relative bg-gray-800/40 backdrop-blur-sm border rounded-xl md:rounded-2xl p-4 transition-all active:scale-[0.98] ${
                   isMonetized
-                    ? "border-gray-700/50 hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/10"
+                    ? `${custom.border || "border-gray-700/50"} hover:${
+                        custom.border || "border-emerald-500/30"
+                      } hover:shadow-lg ${
+                        custom.shadow || "hover:shadow-emerald-500/10"
+                      }`
                     : "border-gray-700/30 opacity-80 hover:opacity-100"
                 }`}
               >
@@ -139,11 +224,23 @@ export default function MonetizationPage() {
                       </div>
                     </div>
 
-                    {/* Badge de mudança */}
+                    {/* Badge de mudança - cor dinâmica */}
                     {platform.change && (
-                      <div className="flex items-center gap-0.5 bg-emerald-500/10 px-1.5 py-0.5 rounded text-xs">
-                        <TrendingUp className="w-3 h-3 text-emerald-400" />
-                        <span className="text-emerald-400 font-bold">
+                      <div
+                        className={`flex items-center gap-0.5 ${
+                          custom.badgeBg || "bg-emerald-500/10"
+                        } px-1.5 py-0.5 rounded text-xs`}
+                      >
+                        <TrendingUp
+                          className={`w-3 h-3 ${
+                            custom.changeColor || "text-emerald-400"
+                          }`}
+                        />
+                        <span
+                          className={`font-bold ${
+                            custom.changeColor || "text-emerald-400"
+                          }`}
+                        >
                           {platform.change}
                         </span>
                       </div>
@@ -153,7 +250,12 @@ export default function MonetizationPage() {
                   {/* Ganhos */}
                   <div className="mb-3">
                     <div className="flex items-center gap-2">
-                      <Euro className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
+                      <Euro
+                        className={`w-4 h-4 md:w-5 md:h-5 ${
+                          custom.badgeText?.replace("bg-", "text-") ||
+                          "text-emerald-400"
+                        }`}
+                      />
                       <p className="text-2xl md:text-3xl font-bold text-white">
                         €{platform.earnings}
                       </p>
@@ -200,7 +302,7 @@ export default function MonetizationPage() {
           })}
         </div>
 
-        {/* Card de dica/ajuda - Mobile compacto */}
+        {/* Card de dica/ajuda */}
         <div className="mt-6 md:mt-8">
           <div className="bg-gradient-to-r from-gray-800/30 to-gray-900/20 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
             <div className="flex items-start gap-3">
@@ -234,7 +336,7 @@ export default function MonetizationPage() {
             <div className="text-center">
               <p className="text-gray-400 text-sm">Total ganho</p>
               <p className="text-3xl font-bold text-white mt-1">
-                €{totalEarnings}
+                €{totalEarnings.toFixed(2)}
               </p>
             </div>
             <div className="text-center">

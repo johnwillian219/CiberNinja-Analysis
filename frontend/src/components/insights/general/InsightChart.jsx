@@ -1,5 +1,5 @@
 // src/components/insights/general/InsightChart.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -10,12 +10,16 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { ChevronDown, BarChart3, Users, Clock } from "lucide-react";
-
-/* Importar dados reais de cada plataforma
-import { viewsData as youtubeViews } from "../../youtube/data/viewsData";
-import { subscribersData as youtubeSubs } from "../../youtube/data/subscribersData";
-import { watchTimeData as youtubeWatch } from "../../youtube/data/watchTimeData";*/
+import {
+  ChevronDown,
+  BarChart3,
+  Users,
+  Clock,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import api from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 
 import { likesData as tiktokLikes } from "../../tiktok/data/likesData";
 import { sharesData as tiktokShares } from "../../tiktok/data/sharesData";
@@ -28,6 +32,30 @@ import { reachData as facebookReach } from "../../facebook/data/reachData";
 import { reactionsData as facebookReactions } from "../../facebook/data/reactionsData";
 import { sharesData as facebookShares } from "../../facebook/data/sharesData";
 
+// Função para gerar datas reais
+const generateRealDates = (days) => {
+  const dates = [];
+  const today = new Date();
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(today.getDate() - i);
+
+    const day = date.getDate();
+    const month = date
+      .toLocaleDateString("pt-BR", { month: "short" })
+      .replace(".", "");
+
+    dates.push({
+      fullDate: date.toISOString().split("T")[0],
+      displayDate: `${day} ${month}`,
+      dayMonth: `${day}/${date.getMonth() + 1}`,
+    });
+  }
+
+  return dates;
+};
+
 // Métricas disponíveis com ícones
 const metrics = [
   {
@@ -38,12 +66,11 @@ const metrics = [
     icon: BarChart3,
     color: "#8b5cf6",
     data: {
-      // YouTube: youtubeViews,
-      //TikTok: tiktokViews,
       Instagram: instagramReach,
       Facebook: facebookReach,
     },
     format: (v) => `${(v / 1000).toFixed(0)}K`,
+    youtubeMetric: "views",
   },
   {
     key: "followers",
@@ -53,12 +80,12 @@ const metrics = [
     icon: Users,
     color: "#10b981",
     data: {
-      // YouTube: youtubeSubs,
       TikTok: tiktokLikes,
       Instagram: instagramSaves,
       Facebook: facebookReactions,
     },
-    format: (v) => `${(v / 1000).toFixed(1)}K`,
+    format: (v) => `${v}`,
+    youtubeMetric: "subscribersGained",
   },
   {
     key: "watchTime",
@@ -68,12 +95,18 @@ const metrics = [
     icon: Clock,
     color: "#f59e0b",
     data: {
-      // YouTube: youtubeWatch,
       TikTok: tiktokShares,
       Instagram: instagramImpressions,
       Facebook: facebookShares,
     },
-    format: (v) => `${(v / 1000).toFixed(1)}K h`,
+    format: (v) => {
+      // YouTube retorna minutos, converter para horas
+      const hours = v / 60;
+      if (hours >= 1000) return `${(hours / 1000).toFixed(1)}K h`;
+      if (hours >= 100) return `${hours.toFixed(0)} h`;
+      return `${hours.toFixed(1)} h`;
+    },
+    youtubeMetric: "estimatedMinutesWatched",
   },
 ];
 
@@ -83,11 +116,66 @@ const periods = [
   { label: "90 dias", value: "all", description: "Últimos 3 meses" },
 ];
 
+// Função para processar dados reais do YouTube Analytics
+const processYouTubeAnalyticsData = (
+  analyticsData,
+  selectedMetric,
+  selectedPeriod
+) => {
+  if (!analyticsData || !analyticsData.data || !analyticsData.headers) {
+    return [];
+  }
+
+  const { data: rows, headers } = analyticsData;
+
+  // Encontrar o índice da métrica desejada
+  const metricIndex = headers.findIndex(
+    (header) =>
+      header.name ===
+      metrics.find((m) => m.key === selectedMetric)?.youtubeMetric
+  );
+
+  if (metricIndex === -1) {
+    return [];
+  }
+
+  // Processar os dados
+  const processedData = rows.map((row, index) => {
+    const dateStr = row[0]; // Primeira coluna é a data
+    const value = parseFloat(row[metricIndex]) || 0;
+
+    // Converter data para formato legível
+    const date = new Date(dateStr);
+    const day = date.getDate();
+    const month = date
+      .toLocaleDateString("pt-BR", { month: "short" })
+      .replace(".", "");
+
+    return {
+      date: `${day} ${month}`,
+      fullDate: dateStr,
+      value: value,
+    };
+  });
+
+  // Filtrar por período
+  const periodDays =
+    selectedPeriod === "7d" ? 7 : selectedPeriod === "30d" ? 30 : 90;
+  return processedData.slice(-periodDays);
+};
+
 export default function InsightChart() {
   const [selectedMetric, setSelectedMetric] = useState("reach");
   const [selectedPeriod, setSelectedPeriod] = useState("30d");
   const [isMetricOpen, setIsMetricOpen] = useState(false);
   const [isPeriodOpen, setIsPeriodOpen] = useState(false);
+  const [youtubeData, setYoutubeData] = useState({
+    analytics: null,
+    loading: true,
+    error: null,
+  });
+  const { youtubeConnected } = useAuth();
+  const [currentDates, setCurrentDates] = useState([]);
 
   // Fechar dropdowns ao clicar fora
   useEffect(() => {
@@ -99,49 +187,214 @@ export default function InsightChart() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  // Carregar dados reais do YouTube
+  const loadYouTubeAnalytics = useCallback(async () => {
+    if (!youtubeConnected) {
+      setYoutubeData({
+        analytics: null,
+        loading: false,
+        error: "Conecte sua conta do YouTube para ver dados reais",
+      });
+      return;
+    }
+
+    setYoutubeData((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const analyticsData = await api.getYouTubeData();
+      console.log("📊 Dados reais do YouTube Analytics:", analyticsData);
+
+      setYoutubeData({
+        analytics: analyticsData,
+        loading: false,
+        error: null,
+      });
+    } catch (err) {
+      console.error("❌ Erro ao carregar dados do YouTube Analytics:", err);
+      setYoutubeData({
+        analytics: null,
+        loading: false,
+        error: err.message || "Falha ao carregar dados do YouTube",
+      });
+    }
+  }, [youtubeConnected]);
+
+  // Efeito inicial: carregar dados
+  useEffect(() => {
+    loadYouTubeAnalytics();
+  }, [loadYouTubeAnalytics]);
+
+  // Gerar datas reais para o período selecionado
+  useEffect(() => {
+    const periodDays =
+      selectedPeriod === "7d" ? 7 : selectedPeriod === "30d" ? 30 : 90;
+    const dates = generateRealDates(periodDays);
+    setCurrentDates(dates);
+  }, [selectedPeriod]);
+
   const currentMetric = metrics.find((m) => m.key === selectedMetric);
   const CurrentIcon = currentMetric?.icon || BarChart3;
   const currentPeriod = periods.find((p) => p.value === selectedPeriod);
 
   // Filtrar dados por período
-  const getFilteredData = (platformData) => {
-    if (selectedPeriod === "7d") return platformData.slice(-7);
-    if (selectedPeriod === "30d") return platformData.slice(-30);
-    return platformData.slice(-90);
-  };
+  const getFilteredData = useCallback(
+    (platformData, platformName) => {
+      if (platformName === "YouTube" && youtubeData.analytics) {
+        // Dados reais do YouTube
+        const realData = processYouTubeAnalyticsData(
+          youtubeData.analytics,
+          selectedMetric,
+          selectedPeriod
+        );
+
+        // Combinar com as datas atuais
+        return currentDates.map((date, index) => {
+          const dataItem = realData[index] || { value: 0 };
+          return {
+            date: date.displayDate,
+            value: dataItem.value,
+            fullDate: date.fullDate,
+          };
+        });
+      } else if (platformName === "YouTube") {
+        // Sem dados do YouTube, retornar array vazio
+        return currentDates.map((date) => ({
+          date: date.displayDate,
+          value: 0,
+          fullDate: date.fullDate,
+        }));
+      }
+
+      // Para outras plataformas, usar dados locais
+      const periodDays =
+        selectedPeriod === "7d" ? 7 : selectedPeriod === "30d" ? 30 : 90;
+      const slicedData = platformData.slice(-periodDays);
+
+      return currentDates.map((date, index) => {
+        const dataItem = slicedData[index] || { value: 0 };
+        return {
+          date: date.displayDate,
+          value: dataItem.value,
+          fullDate: date.fullDate,
+        };
+      });
+    },
+    [youtubeData.analytics, selectedMetric, selectedPeriod, currentDates]
+  );
 
   // Montar dados combinados
-  const combinedData = [];
-  const maxLength = Math.max(
-    ...Object.values(currentMetric.data).map(
-      (arr) => getFilteredData(arr).length
-    )
-  );
+  const getCombinedData = useCallback(() => {
+    if (youtubeData.loading) {
+      return { combinedData: [], platformTotals: {} };
+    }
 
-  for (let i = 0; i < maxLength; i++) {
-    const entry = { date: `Dia ${i + 1}` };
-    Object.keys(currentMetric.data).forEach((platform) => {
-      const platformArray = getFilteredData(currentMetric.data[platform]);
-      entry[platform] = platformArray[i]?.value || 0;
+    const combinedData = [];
+    const platformTotals = {};
+
+    // Preparar todos os dados das plataformas
+    const allPlatforms = {
+      ...currentMetric.data,
+    };
+
+    // Adicionar YouTube apenas se estiver conectado
+    if (youtubeConnected) {
+      allPlatforms.YouTube = []; // Será preenchido pelo getFilteredData
+    }
+
+    // Obter arrays filtrados para cada plataforma
+    const platformArrays = {};
+    Object.keys(allPlatforms).forEach((platform) => {
+      const platformData = allPlatforms[platform];
+      platformArrays[platform] = getFilteredData(platformData, platform);
+
+      // Calcular total
+      platformTotals[platform] = platformArrays[platform].reduce(
+        (sum, item) => sum + (item?.value || 0),
+        0
+      );
     });
-    combinedData.push(entry);
-  }
 
-  // Calcular totais por plataforma
-  const platformTotals = {};
-  Object.keys(currentMetric.data).forEach((platform) => {
-    const platformArray = getFilteredData(currentMetric.data[platform]);
-    const total = platformArray.reduce(
-      (sum, item) => sum + (item?.value || 0),
-      0
-    );
-    platformTotals[platform] = total;
-  });
+    // Combinar dados usando as datas atuais
+    currentDates.forEach((dateInfo, index) => {
+      const entry = {
+        date: dateInfo.displayDate,
+        fullDate: dateInfo.fullDate,
+      };
+
+      Object.keys(platformArrays).forEach((platform) => {
+        const platformArray = platformArrays[platform];
+        entry[platform] = platformArray[index]?.value || 0;
+      });
+
+      combinedData.push(entry);
+    });
+
+    return { combinedData, platformTotals };
+  }, [
+    youtubeData.loading,
+    currentMetric,
+    youtubeConnected,
+    getFilteredData,
+    currentDates,
+  ]);
+
+  const { combinedData, platformTotals } = getCombinedData();
 
   // Encontrar a plataforma líder
-  const leadingPlatform = Object.keys(platformTotals).reduce((a, b) =>
-    platformTotals[a] > platformTotals[b] ? a : b
-  );
+  const leadingPlatform =
+    Object.keys(platformTotals).length > 0
+      ? Object.keys(platformTotals).reduce((a, b) =>
+          platformTotals[a] > platformTotals[b] ? a : b
+        )
+      : "Nenhuma";
+
+  // Função para formatar tooltip
+  const formatTooltipDate = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("pt-BR", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    });
+  };
+
+  // Estado de loading
+  if (youtubeData.loading) {
+    return (
+      <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 xl:p-7 mb-6 sm:mb-8 lg:mb-10 xl:mb-12 flex items-center justify-center min-h-[500px]">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-cyan-400 mx-auto mb-4" />
+          <p className="text-gray-400">Carregando dados reais do YouTube...</p>
+          <p className="text-gray-500 text-sm mt-1">
+            Acessando YouTube Analytics API
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Erro ao carregar
+  if (youtubeData.error) {
+    return (
+      <div className="bg-gray-800/70 backdrop-blur-sm border border-red-500/30 rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 xl:p-7 mb-6 sm:mb-8 lg:mb-10 xl:mb-12">
+        <div className="text-center py-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-red-500/20 rounded-full mb-4">
+            <AlertCircle className="w-6 h-6 text-red-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-white mb-2">
+            Erro ao carregar dados
+          </h3>
+          <p className="text-red-400 text-sm mb-4">{youtubeData.error}</p>
+          <p className="text-gray-400 text-sm">
+            {!youtubeConnected
+              ? "Conecte sua conta do YouTube para ver dados reais."
+              : "Verifique sua conexão com o YouTube e tente novamente."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 xl:p-7 mb-6 sm:mb-8 lg:mb-10 xl:mb-12">
@@ -157,7 +410,12 @@ export default function InsightChart() {
                 {currentMetric.label}
               </h2>
               <p className="text-gray-400 text-xs sm:text-sm mt-0.5">
-                {currentMetric.description}
+                {currentMetric.description} • {currentPeriod?.label}
+                {youtubeConnected && (
+                  <span className="ml-2 text-emerald-400">
+                    ✓ Dados reais do YouTube
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -168,6 +426,29 @@ export default function InsightChart() {
               <span className="font-medium">Líder:</span> {leadingPlatform}
             </p>
           </div>
+        </div>
+
+        {/* Status da conexão */}
+        <div className="mb-4 p-3 rounded-lg border flex items-center justify-between bg-gray-800/50">
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                youtubeConnected
+                  ? "bg-emerald-400 animate-pulse"
+                  : "bg-gray-500"
+              }`}
+            />
+            <span className="text-sm text-gray-300">
+              YouTube:{" "}
+              {youtubeConnected ? "Conectado com dados reais" : "Não conectado"}
+            </span>
+          </div>
+          {youtubeConnected && (
+            <div className="flex items-center gap-2 text-xs text-emerald-400">
+              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+              <span>Live</span>
+            </div>
+          )}
         </div>
 
         {/* Filtros lado a lado */}
@@ -218,6 +499,11 @@ export default function InsightChart() {
                           </p>
                           <p className="text-gray-500 text-xs">
                             {metric.description}
+                            {metric.youtubeMetric && youtubeConnected && (
+                              <span className="text-emerald-400 ml-1">
+                                (Dados reais)
+                              </span>
+                            )}
                           </p>
                         </div>
                       </button>
@@ -301,6 +587,9 @@ export default function InsightChart() {
               tickMargin={8}
               axisLine={false}
               tickLine={false}
+              interval={
+                selectedPeriod === "7d" ? 0 : selectedPeriod === "30d" ? 3 : 6
+              }
             />
             <YAxis
               stroke="#9ca3af"
@@ -325,8 +614,11 @@ export default function InsightChart() {
                 marginBottom: "6px",
                 fontWeight: "500",
               }}
-              itemStyle={{
-                padding: "2px 0",
+              labelFormatter={(label, payload) => {
+                if (payload && payload[0] && payload[0].payload.fullDate) {
+                  return formatTooltipDate(payload[0].payload.fullDate);
+                }
+                return label;
               }}
               formatter={(value, name) => [
                 <span key={value} className="font-bold">
@@ -334,6 +626,9 @@ export default function InsightChart() {
                 </span>,
                 <span key={name} className="text-gray-300">
                   {name}
+                  {name === "YouTube" && youtubeConnected && (
+                    <span className="text-emerald-400 text-xs ml-1">✓</span>
+                  )}
                 </span>,
               ]}
             />
@@ -346,19 +641,21 @@ export default function InsightChart() {
                 gap: "20px",
               }}
             />
-            <Line
-              type="monotone"
-              dataKey="YouTube"
-              stroke="#ef4444"
-              strokeWidth={2.5}
-              dot={{ r: 0 }}
-              activeDot={{
-                r: 6,
-                fill: "#ef4444",
-                stroke: "#fff",
-                strokeWidth: 2,
-              }}
-            />
+            {youtubeConnected && (
+              <Line
+                type="monotone"
+                dataKey="YouTube"
+                stroke="#ef4444"
+                strokeWidth={2.5}
+                dot={{ r: 0 }}
+                activeDot={{
+                  r: 6,
+                  fill: "#ef4444",
+                  stroke: "#fff",
+                  strokeWidth: 2,
+                }}
+              />
+            )}
             <Line
               type="monotone"
               dataKey="TikTok"
@@ -412,6 +709,10 @@ export default function InsightChart() {
                 platform === leadingPlatform
                   ? "bg-emerald-500/5 border-emerald-500/30"
                   : "bg-gray-700/20 border-gray-600/30"
+              } ${
+                platform === "YouTube" && youtubeConnected
+                  ? "border-l-4 border-l-red-500"
+                  : ""
               }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -423,6 +724,9 @@ export default function InsightChart() {
                   }`}
                 >
                   {platform}
+                  {platform === "YouTube" && youtubeConnected && (
+                    <span className="text-red-400 text-xs ml-1">✓</span>
+                  )}
                 </span>
                 {platform === leadingPlatform && (
                   <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] sm:text-xs font-medium rounded">
@@ -435,9 +739,27 @@ export default function InsightChart() {
               </p>
               <p className="text-gray-400 text-[10px] sm:text-xs mt-0.5">
                 Total no período
+                {platform === "YouTube" && youtubeConnected && (
+                  <span className="text-red-400 ml-1">• Dados reais</span>
+                )}
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Nota sobre dados */}
+        <div className="mt-4 pt-4 border-t border-gray-700/30">
+          <p className="text-xs text-gray-500 text-center">
+            {youtubeConnected
+              ? "📊 Dados do YouTube: YouTube Analytics API (dados reais) • Período: 30 dias"
+              : "📊 Dados do YouTube: Conecte sua conta para ver dados reais"}
+          </p>
+          <p className="text-xs text-gray-400 text-center mt-1">
+            {currentDates.length > 0 &&
+              `${currentDates[0]?.displayDate} - ${
+                currentDates[currentDates.length - 1]?.displayDate
+              }`}
+          </p>
         </div>
       </div>
     </div>

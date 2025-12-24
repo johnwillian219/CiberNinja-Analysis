@@ -19,6 +19,13 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import api from "@/services/api";
 
+// Configurações da API do YouTube
+const YOUTUBE_API_KEY =
+  import.meta.env.VITE_YOUTUBE_API_KEY ||
+  "AIzaSyCtTFbHQ8BXdmGghYUH2_qu_3EsUi1f0SY";
+const CHANNEL_ID =
+  import.meta.env.VITE_YOUTUBE_CHANNEL_ID || "UC0tkO3jaK3afLwV0lSEgwFQ";
+
 // Utilitário para gerar cor consistente a partir do email
 const stringToColor = (str) => {
   if (!str) return "#a78bfa";
@@ -30,22 +37,27 @@ const stringToColor = (str) => {
   return `hsl(${hue}, 70%, 50%)`;
 };
 
-const profileStats = [
-  {
-    label: "Conteúdos",
-    value: "428",
-    icon: Activity,
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10",
-  },
-  {
-    label: "Visualizações",
-    value: "8.5M",
-    icon: TrendingUp,
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-  },
-];
+// Função para buscar dados do canal
+const fetchYouTubeStats = async () => {
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${YOUTUBE_API_KEY}`
+    );
+    const data = await response.json();
+
+    if (data.items && data.items.length > 0) {
+      const stats = data.items[0].statistics;
+      return {
+        contents: parseInt(stats.videoCount) || 0,
+        views: parseInt(stats.viewCount) || 0,
+      };
+    }
+    return { contents: 0, views: 0 };
+  } catch (error) {
+    console.error("Erro ao buscar dados do YouTube:", error);
+    return { contents: 0, views: 0 };
+  }
+};
 
 export default function ProfilePage() {
   const { user: loggedUser, loading: authLoading, loadUser } = useAuth();
@@ -59,6 +71,7 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showMobileStats, setShowMobileStats] = useState(false);
   const [error, setError] = useState("");
+  const [youtubeStats, setYoutubeStats] = useState({ contents: 0, views: 0 });
 
   const fileInputRef = useRef(null);
 
@@ -70,7 +83,39 @@ export default function ProfilePage() {
     }
   }, [loggedUser]);
 
+  // Buscar estatísticas do YouTube
+  useEffect(() => {
+    const loadYouTubeStats = async () => {
+      const stats = await fetchYouTubeStats();
+      setYoutubeStats(stats);
+    };
+    loadYouTubeStats();
+  }, []);
+
   const avatarBg = stringToColor(user?.email || "admin@ciberninja.com.br");
+
+  // Estatísticas do perfil com dados reais
+  const profileStats = [
+    {
+      label: "Conteúdos",
+      value: youtubeStats.contents.toString(),
+      icon: Activity,
+      color: "text-cyan-400",
+      bg: "bg-cyan-500/10",
+    },
+    {
+      label: "Visualizações",
+      value:
+        youtubeStats.views >= 1000000
+          ? `${(youtubeStats.views / 1000000).toFixed(1)}M`
+          : youtubeStats.views >= 1000
+          ? `${(youtubeStats.views / 1000).toFixed(1)}K`
+          : youtubeStats.views.toString(),
+      icon: TrendingUp,
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+    },
+  ];
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -335,7 +380,7 @@ export default function ProfilePage() {
                           <div className={`p-2.5 rounded-xl ${stat.bg}`}>
                             <Icon className={`w-5 h-5 ${stat.color}`} />
                           </div>
-                          <span className="text-1xl font-bold text-white">
+                          <span className="text-sm font-bold text-white">
                             {stat.value}
                           </span>
                         </div>
