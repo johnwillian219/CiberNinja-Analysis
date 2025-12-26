@@ -1,6 +1,6 @@
 // src/App.jsx
 
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { EventsProvider } from "./components/calendar/context/EventsContext";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -33,7 +33,7 @@ import SchedulingPage from "./pages/SchedulingPage";
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <AuthProvider>
         <EventsProvider>
           <Routes>
@@ -213,6 +213,6 @@ export default function App() {
           </Routes>
         </EventsProvider>
       </AuthProvider>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
