@@ -9,17 +9,24 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Novo: estado específico do YouTube
+  // Estado específico do YouTube
   const [youtubeConnected, setYoutubeConnected] = useState(false);
   const [youtubeLoading, setYoutubeLoading] = useState(true);
 
-  // Carrega usuário do sistema (se já tiver token)
+  // Carrega usuário a partir do token salvo (ao abrir ou recarregar a página)
   const loadUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const data = await api.request("/auth/me"); // ajuste se tua rota for diferente
-      setUser(data.user || data);
+      const data = await api.getUserProfile(); // usa o método dedicado do api.js
+      setUser(data); // a rota /auth/me retorna diretamente o objeto do usuário
     } catch (error) {
-      console.log("Usuário não autenticado");
+      console.warn("Token inválido ou expirado. Removendo...");
       api.removeToken();
       setUser(null);
     } finally {
@@ -27,7 +34,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Novo: verifica status da conexão com YouTube
+  // Verifica status da conexão com o YouTube
   const checkYouTubeStatus = async () => {
     if (!user) {
       setYoutubeConnected(false);
@@ -47,25 +54,33 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Login normal do teu sistema
+  // Login normal (email + senha)
   const login = async (email, password) => {
-    const data = await api.login({ email, password });
-    setUser(data.user || data);
-    return data;
+    try {
+      const data = await api.login({ email, password });
+
+      // IMPORTANTE: atualiza o estado do usuário imediatamente após o login
+      // O backend retorna algo como { token, user, message }
+      setUser(data.user || data);
+
+      return data;
+    } catch (error) {
+      console.error("Erro no login:", error);
+      throw error;
+    }
   };
 
-  // Logout do teu sistema
+  // Logout
   const logout = () => {
-    api.logout();
+    api.logout(); // remove token do localStorage
     setUser(null);
     setYoutubeConnected(false);
   };
 
-  // Novo: inicia login com YouTube (abre janela do Google via backend)
+  // Inicia login com YouTube (abre popup do Google via backend)
   const loginYouTube = async () => {
     try {
       const response = await api.startYouTubeLogin();
-      // Redireciona para a URL gerada pelo backend
       window.location.href = response.authUrl;
     } catch (error) {
       console.error("Erro ao iniciar login YouTube:", error);
@@ -73,7 +88,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Novo: desconecta do YouTube
+  // Desconecta do YouTube
   const disconnectYouTube = async () => {
     try {
       await api.disconnectYouTube();
@@ -84,15 +99,18 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Efeito inicial: carrega usuário e status do YouTube
+  // Carrega usuário ao montar o app
   useEffect(() => {
     loadUser();
   }, []);
 
-  // Quando o usuário logar, verifica o status do YouTube
+  // Quando o usuário for autenticado, verifica o status do YouTube
   useEffect(() => {
     if (user) {
       checkYouTubeStatus();
+    } else {
+      setYoutubeConnected(false);
+      setYoutubeLoading(false);
     }
   }, [user]);
 

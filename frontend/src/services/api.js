@@ -1,9 +1,19 @@
 // frontend/src/services/api.js
 
-// URL base da API
-// Em produção: usa a variável de ambiente definida no Netlify
-// Em desenvolvimento: fallback para localhost
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// Detecta automaticamente o ambiente
+// DEV = true quando roda "npm run dev"
+// DEV = false quando roda build em produção (Netlify)
+const isDev = import.meta.env.DEV;
+
+const API_URL = isDev
+  ? "http://localhost:5000/api"
+  : "https://ciberninja-backend.onrender.com/api";
+
+console.log(
+  "Ambiente detectado:",
+  isDev ? "Desenvolvimento (local)" : "Produção"
+);
+console.log("API_URL sendo usada:", API_URL);
 
 class ApiService {
   token = localStorage.getItem("token") || null;
@@ -32,7 +42,7 @@ class ApiService {
         ...this.getHeaders(),
         ...options.headers,
       },
-      credentials: "include", // IMPORTANTE para cookies (caso use sessões ou Google OAuth)
+      credentials: "include",
     });
 
     let data;
