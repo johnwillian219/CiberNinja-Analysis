@@ -1,6 +1,9 @@
 // frontend/src/services/api.js
 
-const API_URL = "http://localhost:5000/api";
+// URL base da API
+// Em produção: usa a variável de ambiente definida no Netlify
+// Em desenvolvimento: fallback para localhost
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 class ApiService {
   token = localStorage.getItem("token") || null;
@@ -29,6 +32,7 @@ class ApiService {
         ...this.getHeaders(),
         ...options.headers,
       },
+      credentials: "include", // IMPORTANTE para cookies (caso use sessões ou Google OAuth)
     });
 
     let data;
@@ -62,8 +66,8 @@ class ApiService {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
-    this.setToken(data.token); // Salva o token
-    return data; // ← IMPORTANTE: retorna a resposta completa
+    this.setToken(data.token);
+    return data;
   }
 
   logout() {
