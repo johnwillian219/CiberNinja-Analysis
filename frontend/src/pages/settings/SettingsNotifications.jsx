@@ -3,28 +3,24 @@ import { Bell } from "lucide-react";
 
 export default function SettingsNotifications() {
   return (
-    <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl md:rounded-2xl p-4 md:p-8">
+    <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl md:rounded-2xl p-4 md:p-7">
       <h3 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
         <Bell className="w-5 h-5 md:w-6 md:h-6 text-yellow-400" />
         Preferências de Notificação
       </h3>
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-3 md:space-y-4">
         {[
           {
             label: "Notificações por e-mail",
-            desc: "Receba atualizações importantes por e-mail",
           },
           {
             label: "Novos insights da IA",
-            desc: "Alertas sobre novas análises disponíveis",
           },
           {
             label: "Alertas críticos de desempenho",
-            desc: "Notificações sobre problemas críticos",
           },
           {
             label: "Alertas de segurança",
-            desc: "Notificações sobre atividades suspeitas",
           },
         ].map((item, index) => (
           <div
@@ -34,9 +30,6 @@ export default function SettingsNotifications() {
             <div className="flex-1 min-w-0 mr-3">
               <p className="text-white font-medium text-sm md:text-base truncate">
                 {item.label}
-              </p>
-              <p className="text-gray-400 text-xs md:text-sm truncate">
-                {item.desc}
               </p>
             </div>
             <button className="relative w-12 h-7 md:w-14 md:h-8 rounded-full transition-all duration-300 flex-shrink-0 bg-emerald-500 hover:bg-emerald-600">

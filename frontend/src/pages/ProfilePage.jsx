@@ -15,6 +15,8 @@ import {
   Edit3,
   ChevronDown,
   ChevronUp,
+  User,
+  Info,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/services/api";
@@ -70,6 +72,8 @@ export default function ProfilePage() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showMobileStats, setShowMobileStats] = useState(false);
+  const [showMobileDetails, setShowMobileDetails] = useState(false);
+  const [showMobileInfo, setShowMobileInfo] = useState(false);
   const [error, setError] = useState("");
   const [youtubeStats, setYoutubeStats] = useState({ contents: 0, views: 0 });
 
@@ -227,7 +231,7 @@ export default function ProfilePage() {
   if (authLoading || !user) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-black flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br flex items-center justify-center">
           <p className="text-white text-xl">Carregando perfil...</p>
         </div>
       </DashboardLayout>
@@ -236,24 +240,27 @@ export default function ProfilePage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-black p-3 md:p-6 lg:p-8 animate-fade-in">
+      <div className="min-h-screen bg-gradient-to-br pb-16 p-3 md:p-6 lg:p-8 animate-fade-in">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-6 md:mb-12 animate-slide-up">
+          {/* Header melhorado para mobile */}
+          <div className="text-center mb-6 md:mb-12 animate-slide-up px-2">
             <h1 className="text-2xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent mb-2 md:mb-4 animate-gradient">
               Meu Perfil
             </h1>
             <p className="text-gray-400 text-sm md:text-lg md:text-xl max-w-2xl mx-auto hidden md:block">
               Gerencie sua identidade e informações no CiberNinja Analytics
             </p>
-            <p className="text-gray-400 text-xs md:hidden">
-              Gerencie suas informações
+            <p className="text-gray-400 text-xs md:hidden px-4">
+              Gerencie suas informações pessoais
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
+            {/* Coluna esquerda - Melhorias para mobile */}
             <div className="lg:col-span-1 space-y-4 lg:space-y-8">
-              <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl lg:rounded-3xl p-4 lg:p-8 text-center shadow-xl hover:shadow-cyber transition-all duration-400 animate-slide-up">
-                <div className="relative group mx-auto w-28 h-28 md:w-48 md:h-48 mb-4 lg:mb-6">
+              {/* Card do Avatar - Redimensionado para mobile */}
+              <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl lg:rounded-3xl p-5 lg:p-8 text-center shadow-xl hover:shadow-cyber transition-all duration-400 animate-slide-up">
+                <div className="relative group mx-auto w-24 h-24 md:w-48 md:h-48 mb-4 lg:mb-6">
                   <div className="absolute inset-0 rounded-full p-0.5 md:p-1 animate-spin-slow">
                     <div className="w-full h-full rounded-full bg-gradient-to-r from-cyan-500 via-emerald-500 to-cyan-500" />
                   </div>
@@ -267,7 +274,7 @@ export default function ProfilePage() {
                       />
                     ) : (
                       <div
-                        className="w-full h-full flex items-center justify-center text-4xl md:text-7xl font-bold text-white"
+                        className="w-full h-full flex items-center justify-center text-3xl md:text-7xl font-bold text-white"
                         style={{ backgroundColor: avatarBg }}
                       >
                         {user.email.charAt(0).toUpperCase()}
@@ -280,7 +287,7 @@ export default function ProfilePage() {
                         <div className="flex gap-2 md:gap-3">
                           <button
                             onClick={handleTriggerAvatarUpload}
-                            className="p-2 md:p-3 bg-cyan-500 rounded-full hover:bg-cyan-400 shadow-lg hover:shadow-cyan-500/50 transition-all"
+                            className="p-2 md:p-3 bg-cyan-500 rounded-full hover:bg-cyan-400 shadow-lg hover:shadow-cyan-500/50 transition-all active:scale-95"
                           >
                             <Camera className="w-4 h-4 md:w-6 md:h-6 text-white" />
                           </button>
@@ -298,16 +305,16 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                <h2 className="text-lg md:text-2xl font-bold text-white mb-1 md:mb-2 truncate px-2">
+                <h2 className="text-lg md:text-2xl font-bold text-white mb-1 md:mb-2 truncate px-1">
                   {user.displayName ||
                     user.fullName ||
                     user.username ||
                     "Ciber Ninja"}
                 </h2>
-                <p className="text-sm md:text-xl text-cyan-400 mb-1 md:mb-2 truncate px-2">
+                <p className="text-sm md:text-xl text-cyan-400 mb-1 md:mb-2 truncate px-1">
                   @{user.username || user.email.split("@")[0]}
                 </p>
-                <p className="text-xs md:text-base text-gray-400 mb-3 md:mb-4 truncate px-2">
+                <p className="text-xs md:text-base text-gray-400 mb-3 md:mb-4 truncate px-1">
                   {user.profession || "Creator"}
                 </p>
 
@@ -319,12 +326,17 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Botão mobile para stats */}
+              {/* Botão mobile para Estatísticas */}
               <button
                 onClick={() => setShowMobileStats(!showMobileStats)}
-                className="lg:hidden w-full bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-3 flex items-center justify-between text-white hover:border-cyan-500/50 transition-all"
+                className="lg:hidden w-full bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl p-3 flex items-center justify-between text-white hover:border-cyan-500/50 transition-all active:scale-98"
               >
-                <span className="font-medium">Estatísticas do Perfil</span>
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-cyan-500/10 rounded-lg">
+                    <TrendingUp className="w-4 h-4 text-cyan-400" />
+                  </div>
+                  <span className="font-medium text-sm">Estatísticas</span>
+                </div>
                 {showMobileStats ? (
                   <ChevronUp className="w-5 h-5 text-cyan-400" />
                 ) : (
@@ -332,11 +344,11 @@ export default function ProfilePage() {
                 )}
               </button>
 
-              {/* Stats mobile */}
+              {/* Estatísticas mobile - Expandível */}
               <div
-                className={`lg:hidden bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-4 shadow-xl transition-all duration-300 ${
+                className={`lg:hidden bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl p-4 shadow-xl transition-all duration-300 overflow-hidden ${
                   showMobileStats
-                    ? "block opacity-100 max-h-96"
+                    ? "block opacity-100 max-h-48"
                     : "hidden opacity-0 max-h-0"
                 }`}
               >
@@ -346,13 +358,13 @@ export default function ProfilePage() {
                     return (
                       <div
                         key={index}
-                        className="p-3 bg-gray-700/30 rounded-xl border border-gray-600/50 hover:border-cyan-500/50 transition-all duration-300"
+                        className="p-3 bg-gray-700/30 rounded-xl border border-gray-600/50 hover:border-cyan-500/50 transition-all duration-300 active:scale-98"
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <div className={`p-2 rounded-lg ${stat.bg}`}>
                             <Icon className={`w-4 h-4 ${stat.color}`} />
                           </div>
-                          <span className="text-lg font-bold text-white">
+                          <span className="text-base font-bold text-white">
                             {stat.value}
                           </span>
                         </div>
@@ -363,7 +375,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Stats desktop */}
+              {/* Estatísticas desktop */}
               <div className="hidden lg:block bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-3xl p-6 shadow-xl hover:shadow-cyber transition-all duration-400 animate-slide-up">
                 <h3 className="text-xl font-bold text-white mb-6">
                   Estatísticas do Perfil
@@ -391,20 +403,64 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Card de Informações Básicas */}
-              <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl lg:rounded-3xl p-4 lg:p-6 shadow-xl hover:shadow-cyber transition-all duration-400 animate-slide-up">
-                <h3 className="text-base lg:text-xl font-bold text-white mb-4 lg:mb-6">
+              {/* Botão mobile para Informações */}
+              <button
+                onClick={() => setShowMobileInfo(!showMobileInfo)}
+                className="lg:hidden w-full bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl p-3 flex items-center justify-between text-white hover:border-cyan-500/50 transition-all active:scale-98"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-emerald-500/10 rounded-lg">
+                    <Info className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <span className="font-medium text-sm">Informações</span>
+                </div>
+                {showMobileInfo ? (
+                  <ChevronUp className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-emerald-400" />
+                )}
+              </button>
+
+              {/* Informações mobile - Expandível */}
+              <div
+                className={`lg:hidden bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl p-4 shadow-xl transition-all duration-300 overflow-hidden ${
+                  showMobileInfo
+                    ? "block opacity-100 max-h-32"
+                    : "hidden opacity-0 max-h-0"
+                }`}
+              >
+                <h3 className="text-sm font-bold text-white mb-3">
                   Informações
                 </h3>
-                <div className="space-y-3 lg:space-y-5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 lg:gap-3">
-                      <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-gray-400" />
-                      <span className="text-xs lg:text-base text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span className="text-xs text-gray-400">
                         Membro desde
                       </span>
                     </div>
-                    <span className="text-white text-sm lg:text-base font-medium">
+                    <span className="text-white text-xs font-medium">
+                      {joinDate}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informações desktop */}
+              <div className="hidden lg:block bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-3xl p-6 shadow-xl hover:shadow-cyber transition-all duration-400 animate-slide-up">
+                <h3 className="text-xl font-bold text-white mb-6">
+                  Informações
+                </h3>
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-5 h-5 text-gray-400" />
+                      <span className="text-base text-gray-400">
+                        Membro desde
+                      </span>
+                    </div>
+                    <span className="text-white text-base font-medium">
                       {joinDate}
                     </span>
                   </div>
@@ -412,16 +468,43 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Coluna direita - Formulário */}
+            {/* Coluna direita - Detalhes do Perfil */}
             <div className="lg:col-span-2">
-              <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl lg:rounded-3xl p-4 md:p-8 shadow-2xl overflow-hidden relative animate-slide-up">
+              {/* Botão mobile para Detalhes do Perfil */}
+              <button
+                onClick={() => setShowMobileDetails(!showMobileDetails)}
+                className="lg:hidden w-full bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl p-3 flex items-center justify-between text-white hover:border-cyan-500/50 transition-all active:scale-98 mb-4"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-purple-500/10 rounded-lg">
+                    <User className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <span className="font-medium text-sm">
+                    Detalhes do Perfil
+                  </span>
+                </div>
+                {showMobileDetails ? (
+                  <ChevronUp className="w-5 h-5 text-purple-400" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-purple-400" />
+                )}
+              </button>
+
+              {/* Card de Detalhes do Perfil - Expandível em mobile */}
+              <div
+                className={`lg:block bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-xl lg:rounded-3xl p-4 md:p-8 shadow-2xl overflow-hidden relative animate-slide-up ${
+                  showMobileDetails || window.innerWidth >= 1024
+                    ? "block opacity-100"
+                    : "hidden opacity-0"
+                }`}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-emerald-500/5 to-transparent" />
                 <div className="absolute inset-0 bg-grid-pattern bg-grid-50 opacity-[0.02]" />
 
                 <div className="relative z-10">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 pb-4 md:pb-6 border-b border-gray-700/50">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-8 pb-4 md:pb-6 border-b border-gray-700/50">
                     <div className="mb-3 md:mb-0">
-                      <h2 className="text-lg md:text-2xl font-bold text-white">
+                      <h2 className="text-base md:text-2xl font-bold text-white">
                         Detalhes do Perfil
                       </h2>
                       <p className="text-gray-400 text-xs md:text-base mt-1">
@@ -443,8 +526,9 @@ export default function ProfilePage() {
                     )}
                   </div>
 
-                  <div className="space-y-6 md:space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  {/* Formulário com melhor espaçamento mobile */}
+                  <div className="space-y-4 md:space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                       {[
                         "fullName",
                         "displayName",
@@ -453,7 +537,7 @@ export default function ProfilePage() {
                         "website",
                         "location",
                       ].map((field) => (
-                        <div key={field} className="space-y-1.5 md:space-y-2">
+                        <div key={field} className="space-y-1 md:space-y-2">
                           <label className="text-gray-400 text-xs md:text-sm font-medium capitalize">
                             {field.replace(/([A-Z])/g, " $1").trim()}
                           </label>
@@ -467,14 +551,14 @@ export default function ProfilePage() {
                                   [field]: e.target.value,
                                 }))
                               }
-                              className="w-full px-4 py-3 md:px-5 md:py-4 bg-gray-700/50 border border-gray-600 rounded-xl md:rounded-2xl text-white focus:border-cyan-500 focus:outline-none transition-all placeholder-gray-500 text-sm md:text-base"
+                              className="w-full px-3 py-2.5 md:px-5 md:py-4 bg-gray-700/50 border border-gray-600 rounded-lg md:rounded-2xl text-white focus:border-cyan-500 focus:outline-none transition-all placeholder-gray-500 text-sm md:text-base"
                               placeholder={`Digite seu ${field
                                 .replace(/([A-Z])/g, " $1")
                                 .toLowerCase()
                                 .trim()}`}
                             />
                           ) : (
-                            <div className="text-sm md:text-lg text-white px-3 md:px-4 py-2 md:py-3 bg-gray-700/30 rounded-xl md:rounded-2xl min-h-[48px] md:min-h-[56px] flex items-center">
+                            <div className="text-sm md:text-lg text-white px-3 md:px-4 py-2 md:py-3 bg-gray-700/30 rounded-lg md:rounded-2xl min-h-[44px] md:min-h-[56px] flex items-center">
                               {field === "username"
                                 ? `@${user[field] || "não definido"}`
                                 : user[field] || "não definido"}
@@ -484,7 +568,7 @@ export default function ProfilePage() {
                       ))}
                     </div>
 
-                    <div className="space-y-1.5 md:space-y-2">
+                    <div className="space-y-1 md:space-y-2">
                       <label className="text-gray-400 text-xs md:text-sm font-medium">
                         Biografia
                       </label>
@@ -498,25 +582,26 @@ export default function ProfilePage() {
                               bio: e.target.value,
                             }))
                           }
-                          className="w-full px-4 py-3 md:px-5 md:py-4 bg-gray-700/50 border border-gray-600 rounded-xl md:rounded-2xl text-white focus:border-cyan-500 focus:outline-none transition-all resize-none placeholder-gray-500 text-sm md:text-base"
+                          className="w-full px-3 py-2.5 md:px-5 md:py-4 bg-gray-700/50 border border-gray-600 rounded-lg md:rounded-2xl text-white focus:border-cyan-500 focus:outline-none transition-all resize-none placeholder-gray-500 text-sm md:text-base"
                           placeholder="Conte um pouco sobre você..."
                         />
                       ) : (
-                        <div className="text-white leading-relaxed text-sm md:text-lg px-3 md:px-4 py-2 md:py-3 bg-gray-700/30 rounded-xl md:rounded-2xl min-h-[80px] md:min-h-[120px]">
+                        <div className="text-white leading-relaxed text-sm md:text-lg px-3 md:px-4 py-2 md:py-3 bg-gray-700/30 rounded-lg md:rounded-2xl min-h-[80px] md:min-h-[120px]">
                           {user.bio || "Sem biografia"}
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-gray-700/50">
-                    <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
+                  {/* Botões com melhor responsividade */}
+                  <div className="mt-6 md:mt-12 pt-4 md:pt-8 border-t border-gray-700/50">
+                    <div className="flex flex-col sm:flex-row justify-center gap-2 md:gap-4">
                       {isEditing ? (
                         <>
                           <button
                             onClick={handleCancel}
                             disabled={isLoading}
-                            className="px-6 py-3 md:px-8 md:py-4 border border-gray-600 rounded-xl md:rounded-2xl text-gray-300 font-medium hover:border-gray-500 hover:bg-gray-700/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base"
+                            className="px-4 py-2.5 md:px-8 md:py-4 border border-gray-600 rounded-lg md:rounded-2xl text-gray-300 font-medium hover:border-gray-500 hover:bg-gray-700/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base active:scale-98"
                           >
                             <X className="w-4 h-4 md:w-5 md:h-5" />
                             Cancelar
@@ -525,7 +610,7 @@ export default function ProfilePage() {
                           <button
                             onClick={openResetModal}
                             disabled={isLoading}
-                            className="px-6 py-3 md:px-8 md:py-4 border border-gray-600 rounded-xl md:rounded-2xl text-amber-300 font-medium hover:border-amber-500 hover:bg-amber-500/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base"
+                            className="px-4 py-2.5 md:px-8 md:py-4 border border-gray-600 rounded-lg md:rounded-2xl text-amber-300 font-medium hover:border-amber-500 hover:bg-amber-500/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base active:scale-98"
                           >
                             <RotateCcw className="w-4 h-4 md:w-5 md:h-5" />
                             Resetar
@@ -534,19 +619,19 @@ export default function ProfilePage() {
                           <button
                             onClick={handleSave}
                             disabled={isLoading}
-                            className="px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-xl md:rounded-2xl text-white font-semibold hover:shadow-cyber transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 md:gap-3 relative overflow-hidden group text-sm md:text-base"
+                            className="px-4 py-2.5 md:px-8 md:py-4 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-lg md:rounded-2xl text-white font-semibold hover:shadow-cyber transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 md:gap-3 relative overflow-hidden group text-sm md:text-base active:scale-98"
                           >
                             <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             <Save className="w-4 h-4 md:w-5 md:h-5 relative z-10" />
                             <span className="relative z-10">
-                              {isLoading ? "Salvando..." : "Salvar Alterações"}
+                              {isLoading ? "Salvando..." : "Salvar"}
                             </span>
                           </button>
                         </>
                       ) : (
                         <button
                           onClick={() => setIsEditing(true)}
-                          className="px-6 py-3 md:px-10 md:py-5 bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 border border-cyan-500/50 rounded-xl md:rounded-2xl text-cyan-400 font-semibold hover:from-cyan-500/30 hover:to-emerald-500/30 hover:border-cyan-400 hover:shadow-cyber transition-all duration-300 flex items-center justify-center gap-2 md:gap-3 group relative overflow-hidden text-sm md:text-base"
+                          className="px-4 py-2.5 md:px-10 md:py-5 bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 border border-cyan-500/50 rounded-lg md:rounded-2xl text-cyan-400 font-semibold hover:from-cyan-500/30 hover:to-emerald-500/30 hover:border-cyan-400 hover:shadow-cyber transition-all duration-300 flex items-center justify-center gap-2 md:gap-3 group relative overflow-hidden text-sm md:text-base active:scale-98"
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500" />
                           <Edit3 className="w-4 h-4 md:w-6 md:h-6 relative z-10" />
@@ -556,7 +641,7 @@ export default function ProfilePage() {
                     </div>
 
                     {isEditing && (
-                      <p className="text-center text-gray-500 text-xs md:text-sm mt-3 md:mt-4">
+                      <p className="text-center text-gray-500 text-xs md:text-sm mt-2 md:mt-4">
                         Alterações refletem após salvar
                       </p>
                     )}
@@ -564,7 +649,8 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="mt-4 md:mt-6 text-center text-gray-500 text-xs md:text-sm">
+              {/* Rodapé ajustado */}
+              <div className="mt-3 md:mt-6 text-center text-gray-500 text-xs md:text-sm px-2">
                 <p>
                   Última atualização:{" "}
                   {new Date().toLocaleTimeString([], {

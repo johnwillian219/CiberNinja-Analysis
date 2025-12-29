@@ -78,25 +78,25 @@ export default function SettingsSecurity() {
         <div className="space-y-4 md:space-y-6">
           {[
             {
-              label: "Senha Atual",
+              // label: "Senha Atual",
               key: "current",
               placeholder: "Digite sua senha atual",
             },
             {
-              label: "Nova Senha",
+              //label: "Nova Senha",
               key: "new",
               placeholder: "Digite sua nova senha",
             },
             {
-              label: "Confirmar Nova Senha",
+              //label: "Confirmar Nova Senha",
               key: "confirm",
               placeholder: "Confirme sua nova senha",
             },
           ].map((field) => (
             <div key={field.key}>
-              <label className="block text-gray-400 text-xs md:text-sm mb-1 md:mb-2">
+              {/* <label className="block text-gray-400 text-xs md:text-sm mb-1 md:mb-2">
                 {field.label}
-              </label>
+              </label> */}
               <div className="relative">
                 <input
                   type={showPasswords[field.key] ? "text" : "password"}

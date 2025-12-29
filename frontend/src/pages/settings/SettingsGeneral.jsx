@@ -65,7 +65,7 @@ export default function SettingsGeneral({ user }) {
           </div>
 
           {/* Datas da conta */}
-          <div className="pt-4 md:pt-6 border-t border-gray-700/50">
+          <div className="pt-4 pb-14 md:pt-6 border-t border-gray-700/50">
             <h4 className="text-base md:text-lg font-bold text-white mb-3 md:mb-4">
               Informações da Conta
             </h4>

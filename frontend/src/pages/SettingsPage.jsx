@@ -31,7 +31,7 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gradient-to-br p-3 pb-16 md:p-6 lg:p-8">
+      <div className="min-h-screen bg-gradient-to-br pb-16 md:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Cabeçalho */}
           <div className="mb-8 md:mb-12 text-center">
